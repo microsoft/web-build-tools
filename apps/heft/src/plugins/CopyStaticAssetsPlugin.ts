@@ -36,16 +36,19 @@ export interface ISharedCopyStaticAssetsConfiguration {
    * Globs that should be explicitly included.
    */
   includeGlobs?: string[];
+
+  /**
+   * The folder to which assets should be copied. For example "lib". This defaults to "lib"
+   */
+  destinationFolderName?: string;
+
+  /**
+   * The folder from which assets should be copied. For example, "src". This defaults to "src".
+   */
+  sourceFolderName?: string;
 }
 
 interface ICopyStaticAssetsConfiguration extends ISharedCopyStaticAssetsConfiguration {
-  /**
-   * The folder from which assets should be copied. For example, "src". This defaults to "src".
-   *
-   * This folder is directly under the folder containing the project's package.json file
-   */
-  sourceFolderName: string;
-
   /**
    * The folder(s) to which assets should be copied. For example ["lib", "lib-cjs"]. This defaults to ["lib"]
    *
@@ -103,16 +106,16 @@ export class CopyStaticAssetsPlugin implements IHeftPlugin {
       heftConfiguration.rigConfig
     );
 
-    const destinationFolderNames: string[] = ['lib'];
+    const destinationFolderNames: string[] = [
+      typescriptConfiguration?.staticAssetsToCopy?.destinationFolderName ?? 'lib'
+    ];
     for (const emitModule of typescriptConfiguration?.additionalModuleKindsToEmit || []) {
       destinationFolderNames.push(emitModule.outFolderName);
     }
 
     return {
       ...typescriptConfiguration?.staticAssetsToCopy,
-
-      // For now - these may need to be revised later
-      sourceFolderName: 'src',
+      sourceFolderName: typescriptConfiguration?.staticAssetsToCopy?.sourceFolderName ?? 'src',
       destinationFolderNames
     };
   }

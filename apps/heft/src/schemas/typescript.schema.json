@@ -90,6 +90,18 @@
             "type": "string",
             "pattern": "[^\\\\]"
           }
+        },
+
+        "destinationFolderName": {
+          "type": "string",
+          "description": "The folder to which assets should be copied. For example \"lib\". This defaults to \"lib\"",
+          "pattern": "[^\\\\\\/]"
+        },
+
+        "sourceFolderName": {
+          "type": "string",
+          "description": "The folder from which assets should be copied. For example, \"src\". This defaults to \"src\".",
+          "pattern": "[^\\\\\\/]"
         }
       }
     }
