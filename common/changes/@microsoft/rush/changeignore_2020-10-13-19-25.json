@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Add support for a \".changeignore\" file that allows files and folders to be excluded from change detection in \"rush change\".",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush",
+  "email": "mmkal@users.noreply.github.com"
+}

@@ -5,6 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import colors from 'colors';
+import ignore, { Ignore } from 'ignore';
 
 import {
   CommandLineFlagParameter,
@@ -28,6 +29,8 @@ import {
 } from '../../api/VersionPolicy';
 
 import type * as inquirerTypes from 'inquirer';
+import { RushConstants } from '../../logic/RushConstants';
+import { flatMap, memoize } from 'lodash';
 const inquirer: typeof inquirerTypes = Import.lazy('inquirer', require);
 
 export class ChangeAction extends BaseRushAction {
@@ -46,7 +49,9 @@ export class ChangeAction extends BaseRushAction {
     const documentation: string[] = [
       'Asks a series of questions and then generates a <branchname>-<timestamp>.json file ' +
         'in the common folder. The `publish` command will consume these files and perform the proper ' +
-        'version bumps. Note these changes will eventually be published in a changelog.md file in each package.',
+        'version bumps. Files will be excluded from change detection if they match an entry in a ' +
+        `\`${RushConstants.changeignoreFileName}\` file in any parent directory of the modified file. ` +
+        'The changes will eventually be published in a CHANGELOG.md file in each package.',
       '',
       'The possible types of changes are: ',
       '',
@@ -311,17 +316,30 @@ export class ChangeAction extends BaseRushAction {
   }
 
   private _getChangedPackageNames(): string[] {
-    const changedFolders: (string | undefined)[] | undefined = VersionControl.getChangedFolders(
+    const changedFiles: string[] = VersionControl.getChangedFiles(
       this._targetBranch,
       this._noFetchParameter.value
     );
-    if (!changedFolders) {
+    if (changedFiles.length === 0) {
       return [];
     }
     const changedPackageNames: Set<string> = new Set<string>();
 
     const repoRootFolder: string | undefined = VersionControl.getRepositoryRootPath();
     const projectHostMap: Map<string, string> = this._generateHostMap();
+
+    const getChangeIgnorePatterns: (fsPath: string) => string[] = memoize((fsPath: string): string[] => {
+      if ((repoRootFolder && Path.isUnder(repoRootFolder, fsPath)) || !FileSystem.exists(fsPath)) {
+        return [];
+      }
+      const parentIgnoreStrings: string[] = getChangeIgnorePatterns(path.dirname(fsPath));
+
+      const changeIgnoreFilePath: string = path.join(fsPath, RushConstants.changeignoreFileName);
+
+      return FileSystem.exists(changeIgnoreFilePath)
+        ? [...parentIgnoreStrings, FileSystem.readFile(changeIgnoreFilePath)]
+        : parentIgnoreStrings;
+    });
 
     this.rushConfiguration.projects
       .filter((project) => project.shouldPublish)
@@ -330,7 +348,7 @@ export class ChangeAction extends BaseRushAction {
         const projectFolder: string = repoRootFolder
           ? path.relative(repoRootFolder, project.projectFolder)
           : project.projectRelativeFolder;
-        return this._hasProjectChanged(changedFolders, projectFolder);
+        return this._hasProjectChanged(changedFiles, projectFolder, getChangeIgnorePatterns);
       })
       .forEach((project) => {
         const hostName: string | undefined = projectHostMap.get(project.packageName);
@@ -353,14 +371,20 @@ export class ChangeAction extends BaseRushAction {
     });
   }
 
-  private _hasProjectChanged(changedFolders: (string | undefined)[], projectFolder: string): boolean {
-    for (const folder of changedFolders) {
-      if (folder && Path.isUnderOrEqual(folder, projectFolder)) {
-        return true;
-      }
+  private _hasProjectChanged(
+    changedFiles: string[],
+    projectFolder: string,
+    getChangeIgnorePatterns: (fsPath: string) => string[]
+  ): boolean {
+    const relevantFiles: string[] = changedFiles.filter((file) => Path.isUnderOrEqual(file, projectFolder));
+
+    const ignoreConfig: Ignore = ignore();
+
+    for (const ignorePattern of flatMap(relevantFiles.map(path.dirname), getChangeIgnorePatterns)) {
+      ignoreConfig.add(ignorePattern);
     }
 
-    return false;
+    return relevantFiles.some(ignoreConfig.createFilter());
   }
 
   /**

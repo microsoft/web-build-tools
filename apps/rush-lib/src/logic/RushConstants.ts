@@ -26,6 +26,12 @@ export class RushConstants {
   public static readonly changeFilesFolderName: string = 'changes';
 
   /**
+   * The filename for file globs which should be ignored when running `rush change`. Uses the same syntax
+   * as `.gitignore`, `.npmignore`, `.eslintignore` etc.
+   */
+  public static readonly changeignoreFileName: string = '.changeignore';
+
+  /**
    * The filename ("nonbrowser-approved-packages.json") for an optional policy configuration file
    * that stores a list of NPM packages that have been approved for usage by Rush projects.
    * This is part of a pair of config files, one for projects that run in a web browser
