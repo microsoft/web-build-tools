@@ -12,5 +12,7 @@ export class Constants {
 
   public static debugParameterLongName: string = '--debug';
 
+  public static traceParameterLongName: string = '--trace';
+
   public static maxParallelism: number = 100;
 }

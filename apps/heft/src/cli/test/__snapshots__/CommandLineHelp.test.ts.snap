@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CommandLineHelp prints the global help 1`] = `
-"usage: heft [-h] [--unmanaged] [--debug] [--plugin PATH] <command> ...
+"usage: heft [-h] [--unmanaged] [--debug] [--trace] [--plugin PATH]
+            <command> ...
 
 Heft is a pluggable build system designed for web projects.
 
@@ -22,6 +23,8 @@ Optional arguments:
                  example if you want to test a different version of Heft.
   --debug        Show the full call stack if an error occurs while executing 
                  the tool
+  --trace        Generate a timeline trace in the Chrome Trace Events format 
+                 in the working directory
   --plugin PATH  Used to specify Heft plugins.
 
 [bold]For detailed help about a specific command, use: heft <command> -h[normal]

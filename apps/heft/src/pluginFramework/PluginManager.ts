@@ -13,18 +13,7 @@ import {
   IHeftConfigurationJson
 } from '../utilities/CoreConfigFiles';
 
-// Default plugins
-import { CopyFilesPlugin } from '../plugins/CopyFilesPlugin';
-import { TypeScriptPlugin } from '../plugins/TypeScriptPlugin/TypeScriptPlugin';
-import { DeleteGlobsPlugin } from '../plugins/DeleteGlobsPlugin';
-import { CopyStaticAssetsPlugin } from '../plugins/CopyStaticAssetsPlugin';
-import { ApiExtractorPlugin } from '../plugins/ApiExtractorPlugin/ApiExtractorPlugin';
-import { JestPlugin } from '../plugins/JestPlugin/JestPlugin';
-import { BasicConfigureWebpackPlugin } from '../plugins/Webpack/BasicConfigureWebpackPlugin';
-import { WebpackPlugin } from '../plugins/Webpack/WebpackPlugin';
-import { SassTypingsPlugin } from '../plugins/SassTypingsPlugin/SassTypingsPlugin';
-import { ProjectValidatorPlugin } from '../plugins/ProjectValidatorPlugin';
-import { ToolPackageResolver } from '../utilities/ToolPackageResolver';
+// Don't synchronously import plugins in this file, it impairs boot time.
 
 export interface IPluginManagerOptions {
   terminal: Terminal;
@@ -45,19 +34,14 @@ export class PluginManager {
     this._internalHeftSession = options.internalHeftSession;
   }
 
-  public initializeDefaultPlugins(): void {
-    const taskPackageResolver: ToolPackageResolver = new ToolPackageResolver();
+  public async initializeDefaultPluginsAsync(): Promise<void> {
+    for (const plugin of (await import('./DefaultPlugins')).getDefaultPlugins()) {
+      this._applyPlugin(plugin);
+    }
+  }
 
-    this._applyPlugin(new TypeScriptPlugin(taskPackageResolver));
-    this._applyPlugin(new CopyStaticAssetsPlugin());
-    this._applyPlugin(new CopyFilesPlugin());
-    this._applyPlugin(new DeleteGlobsPlugin());
-    this._applyPlugin(new ApiExtractorPlugin(taskPackageResolver));
-    this._applyPlugin(new JestPlugin());
-    this._applyPlugin(new BasicConfigureWebpackPlugin());
-    this._applyPlugin(new WebpackPlugin());
-    this._applyPlugin(new SassTypingsPlugin());
-    this._applyPlugin(new ProjectValidatorPlugin());
+  public async initializeTracingPluginAsync(): Promise<void> {
+    this._applyPlugin(new (await import('../plugins/TimelineTracePlugin')).TimelineTracePlugin());
   }
 
   public initializePlugin(pluginSpecifier: string, options?: object): void {

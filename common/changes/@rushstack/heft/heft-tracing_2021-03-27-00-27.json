@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/heft",
+      "comment": "Support timeline tracing via \"heft --trace build\" or similar. Records times for all plugin hook executions in Chrome Trace Events format.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@rushstack/heft",
+  "email": "dmichon-msft@users.noreply.github.com"
+}

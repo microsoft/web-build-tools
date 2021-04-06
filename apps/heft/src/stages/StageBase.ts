@@ -80,7 +80,8 @@ export abstract class StageBase<
   }
 
   public async executeAsync(): Promise<void> {
-    if (this.stageHooks.overrideStage.isUsed()) {
+    // isUsed() also checks interceptors
+    if (this.stageHooks.overrideStage.taps.length) {
       await this.stageHooks.overrideStage.promise(this.stageProperties);
     } else {
       await this.executeInnerAsync();

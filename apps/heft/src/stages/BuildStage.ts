@@ -314,7 +314,8 @@ export class BuildStage extends StageBase<BuildStageHooks, IBuildStageProperties
     buildStage,
     watchMode
   }: IRunSubstageWithLoggingOptions): Promise<void> {
-    if (buildStage.hooks.run.isUsed()) {
+    // isUsed() also checks interceptors
+    if (buildStage.hooks.run.taps.length) {
       await Logging.runFunctionWithLoggingBoundsAsync(
         this.globalTerminal,
         buildStageName,

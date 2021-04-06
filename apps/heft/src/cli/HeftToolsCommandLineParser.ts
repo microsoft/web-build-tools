@@ -41,6 +41,7 @@ import { IHeftLifecycle, HeftLifecycleHooks } from '../pluginFramework/HeftLifec
 interface IPreInitializationArgumentValues {
   plugins?: string[];
   debug?: boolean;
+  trace?: boolean;
 }
 
 export class HeftToolsCommandLineParser extends CommandLineParser {
@@ -57,10 +58,15 @@ export class HeftToolsCommandLineParser extends CommandLineParser {
 
   private _unmanagedFlag!: CommandLineFlagParameter;
   private _debugFlag!: CommandLineFlagParameter;
+  private _traceFlag!: CommandLineFlagParameter;
   private _pluginsParameter!: CommandLineStringListParameter;
 
   public get isDebug(): boolean {
     return !!this._preInitializationArgumentValues.debug;
+  }
+
+  public get enableTrace(): boolean {
+    return !!this._preInitializationArgumentValues.trace;
   }
 
   public get terminal(): Terminal {
@@ -148,6 +154,11 @@ export class HeftToolsCommandLineParser extends CommandLineParser {
     this._debugFlag = this.defineFlagParameter({
       parameterLongName: Constants.debugParameterLongName,
       description: 'Show the full call stack if an error occurs while executing the tool'
+    });
+
+    this._traceFlag = this.defineFlagParameter({
+      parameterLongName: Constants.traceParameterLongName,
+      description: 'Generate a timeline trace in the Chrome Trace Events format in the working directory'
     });
 
     this._pluginsParameter = this.defineStringListParameter({
@@ -239,13 +250,18 @@ export class HeftToolsCommandLineParser extends CommandLineParser {
     const parser: ArgumentParser = new ArgumentParser({ addHelp: false });
     parser.addArgument(this._pluginsParameter.longName, { dest: 'plugins', action: 'append' });
     parser.addArgument(this._debugFlag.longName, { dest: 'debug', action: 'storeTrue' });
+    parser.addArgument(this._traceFlag.longName, { dest: 'trace', action: 'storeTrue' });
 
     const [result]: IPreInitializationArgumentValues[] = parser.parseKnownArgs(args);
     return result;
   }
 
   private async _initializePluginsAsync(): Promise<void> {
-    this._pluginManager.initializeDefaultPlugins();
+    if (this.enableTrace) {
+      await this._pluginManager.initializeTracingPluginAsync();
+    }
+
+    await this._pluginManager.initializeDefaultPluginsAsync();
 
     await this._pluginManager.initializePluginsFromConfigFileAsync();
 
