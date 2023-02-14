@@ -29,6 +29,8 @@ export interface ICachedEmitModuleKind {
   isPrimary: boolean;
 }
 
+const JS_EXTENSION_REGEX: RegExp = /\.js(\.map)?$/;
+
 export class EmitFilesPatch {
   private static _patchedTs: ExtendedTypeScript | undefined = undefined;
 
@@ -114,15 +116,66 @@ export class EmitFilesPatch {
                 declarationMap: false
               };
 
-          if (!compilerOptions.outDir) {
+          const { outDir, declaration, declarationDir } = compilerOptions;
+
+          if (!declaration) {
+            compilerOptions.declarationDir = undefined;
+          }
+
+          if (!outDir) {
             throw new InternalError('Expected compilerOptions.outDir to be assigned');
+          }
+
+          const { jsExtensionOverride } = moduleKindToEmit;
+          // RegExp replacer function for renaming module file extensions
+          const extensionReplacer: ((match: string, map: string) => string) | undefined = jsExtensionOverride
+            ? (match: string, map: string) => {
+                return map ? `${jsExtensionOverride}${map}` : jsExtensionOverride;
+              }
+            : undefined;
+
+          // If the outDir is not the designated declaration directory, emit .d.ts redirector shims
+          const createShims: boolean =
+            (compilerOptions.isolatedModules && declarationDir && declarationDir !== outDir) || false;
+
+          const outDirLength: number = outDir.endsWith('/') ? outDir.length - 1 : outDir.length;
+
+          // Creates a .d.ts redirector for the specified file to a module in the declarationDir
+          function createShim(fileName: string, sourceFile: TTypescript.SourceFile): string | undefined {
+            if (!fileName.endsWith('.js')) {
+              return;
+            }
+
+            const fileNameRelativeToOutDir: string = fileName.slice(outDirLength, -3);
+            const relativeDeclarationFilePath: string = `${ts.getRelativePathFromDirectory(
+              ts.getDirectoryPath(fileName),
+              declarationDir!,
+              false
+            )}${fileNameRelativeToOutDir}`;
+
+            // As long as the file is a module, `export * from` will work.
+            let shim: string = `export * from '${relativeDeclarationFilePath}';`;
+            // Reach into the binding layer to determine if there is an export named "default"
+            const moduleHasDefaultExport: boolean | undefined = (
+              sourceFile as IExtendedSourceFile
+            ).symbol?.exports.has('default');
+            if (moduleHasDefaultExport) {
+              // If the module has a default export, need to explicitly forward it
+              shim += `\nexport { default as default } from '${relativeDeclarationFilePath}';`;
+            }
+
+            return shim;
           }
 
           const flavorResult: TTypescript.EmitResult = EmitFilesPatch._baseEmitFiles(
             resolver,
             {
               ...host,
-              writeFile: EmitFilesPatch.wrapWriteFile(host.writeFile, moduleKindToEmit.jsExtensionOverride),
+              writeFile: EmitFilesPatch.wrapWriteFile(
+                host.writeFile,
+                extensionReplacer,
+                createShims ? createShim : undefined
+              ),
               getCompilerOptions: () => compilerOptions
             },
             targetSourceFile,
@@ -164,13 +217,13 @@ export class EmitFilesPatch {
    */
   public static wrapWriteFile(
     baseWriteFile: TTypescript.WriteFileCallback,
-    jsExtensionOverride: string | undefined
+    jsExtensionReplacer: ((match: string, map: string) => string) | undefined,
+    createShim: ((fileName: string, sourceFile: TTypescript.SourceFile) => string | undefined) | undefined
   ): TTypescript.WriteFileCallback {
-    if (!jsExtensionOverride) {
+    if (!jsExtensionReplacer && !createShim) {
       return baseWriteFile;
     }
 
-    const replacementExtension: string = `${jsExtensionOverride}$1`;
     return (
       fileName: string,
       data: string,
@@ -178,8 +231,18 @@ export class EmitFilesPatch {
       onError?: ((message: string) => void) | undefined,
       sourceFiles?: readonly TTypescript.SourceFile[] | undefined
     ) => {
+      if (createShim && sourceFiles) {
+        const sourceFile: TTypescript.SourceFile = sourceFiles[0];
+        const shim: string | undefined = createShim(fileName, sourceFile);
+
+        if (shim) {
+          const shimFileName: string = `${fileName.slice(0, -2)}d.ts`;
+          baseWriteFile(shimFileName, shim, writeBOM, onError, sourceFiles);
+        }
+      }
+
       return baseWriteFile(
-        fileName.replace(/\.js(\.map)?$/g, replacementExtension),
+        jsExtensionReplacer ? fileName.replace(JS_EXTENSION_REGEX, jsExtensionReplacer) : fileName,
         data,
         writeBOM,
         onError,

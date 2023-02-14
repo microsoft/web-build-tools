@@ -1047,6 +1047,11 @@ export class TypeScriptBuilder extends SubprocessRunnerBase<ITypeScriptBuilderCo
       tsconfig.options.tsBuildInfoFile = this._tsCacheFilePath;
     }
 
+    if (tsconfig.options.declaration && !tsconfig.options.declarationDir) {
+      // Explicitly set the declarationDir for multi-emit tracking
+      tsconfig.options.declarationDir = tsconfig.options.outDir;
+    }
+
     return tsconfig;
   }
 

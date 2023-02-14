@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/heft",
+      "comment": "Add code to emit .d.ts shims in secondary output directories that redirect to the main declarationDir.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@rushstack/heft"
+}

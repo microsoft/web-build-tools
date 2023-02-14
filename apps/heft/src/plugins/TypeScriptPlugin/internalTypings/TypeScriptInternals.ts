@@ -37,6 +37,13 @@ export interface IExtendedSourceFile extends TTypescript.SourceFile {
    * https://github.com/microsoft/TypeScript/blob/5f597e69b2e3b48d788cb548df40bcb703c8adb1/src/compiler/types.ts#L3011
    */
   version: string;
+
+  /**
+   * https://github.com/microsoft/TypeScript/blob/5f597e69b2e3b48d788cb548df40bcb703c8adb1/src/compiler/types.ts#L657
+   */
+  symbol: {
+    exports: Map<string, unknown>;
+  };
 }
 
 /**
@@ -138,6 +145,16 @@ export interface IExtendedTypeScript {
     fileName: string,
     referencePath?: string
   ): string;
+
+  /**
+   * https://github.com/microsoft/TypeScript/blob/7f022c58fb8b7253f23c49f0d9eee6fde82b477b/src/compiler/path.ts#L808
+   */
+  getRelativePathFromDirectory(fromDirectory: string, to: string, ignoreCase: boolean): string;
+
+  /**
+   * https://github.com/microsoft/TypeScript/blob/7f022c58fb8b7253f23c49f0d9eee6fde82b477b/src/compiler/path.ts#L263
+   */
+  getDirectoryPath(path: string): string;
 
   Diagnostics: {
     // https://github.com/microsoft/TypeScript/blob/5f597e69b2e3b48d788cb548df40bcb703c8adb1/src/compiler/diagnosticMessages.json#L4252-L4255
