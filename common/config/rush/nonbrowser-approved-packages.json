@@ -75,6 +75,10 @@
       "allowedCategories": [ "libraries" ]
     },
     {
+      "name": "@rspack/core",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
       "name": "@rushstack/debug-certificate-manager",
       "allowedCategories": [ "libraries" ]
     },
