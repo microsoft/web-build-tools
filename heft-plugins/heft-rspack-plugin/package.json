@@ -1,0 +1,34 @@
+{
+  "name": "@rushstack/heft-rspack-plugin",
+  "version": "0.0.0",
+  "description": "Heft plugin for RSPack",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/rushstack.git",
+    "directory": "heft-plugins/heft-rspack-plugin"
+  },
+  "homepage": "https://rushstack.io/pages/heft/overview/",
+  "main": "lib/index.js",
+  "types": "dist/heft-rspack-plugin.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "heft build --clean",
+    "start": "heft test --clean --watch",
+    "_phase:build": "heft build --clean",
+    "_phase:test": "heft test --no-build"
+  },
+  "peerDependencies": {
+    "@rushstack/heft": "^0.49.7",
+    "@rspack/core": "^0.1.1"
+  },
+  "dependencies": {
+    "@rushstack/node-core-library": "workspace:*"
+  },
+  "devDependencies": {
+    "@rushstack/eslint-config": "workspace:*",
+    "@rushstack/heft": "workspace:*",
+    "@rushstack/heft-node-rig": "workspace:*",
+    "@types/node": "14.18.36",
+    "@rspack/core": "^0.1.1"
+  }
+}

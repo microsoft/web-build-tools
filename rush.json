@@ -823,6 +823,13 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@rushstack/heft-rspack-plugin",
+      "projectFolder": "heft-plugins/heft-rspack-plugin",
+      "reviewCategory": "libraries"
+      // Not ready to publish yet
+      // "shouldPublish": true
+    },
+    {
       "packageName": "@rushstack/heft-sass-plugin",
       "projectFolder": "heft-plugins/heft-sass-plugin",
       "reviewCategory": "libraries",
