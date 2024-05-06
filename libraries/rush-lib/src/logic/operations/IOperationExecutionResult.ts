@@ -56,6 +56,10 @@ export interface IOperationExecutionResult {
    * The paths to the log files, if applicable.
    */
   readonly logFilePaths: ILogFilePaths | undefined;
+  /**
+   * Returns true if this operation was co-built using this machine, false if cobuilds are disabled or it was executed on another agent.
+   */
+  readonly executedOnThisAgent: boolean;
 }
 
 /**

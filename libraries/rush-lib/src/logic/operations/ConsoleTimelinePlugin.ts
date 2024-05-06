@@ -12,7 +12,6 @@ import type {
 } from '../../pluginFramework/PhasedCommandHooks';
 import type { IExecutionResult } from './IOperationExecutionResult';
 import { OperationStatus } from './OperationStatus';
-import type { CobuildConfiguration } from '../../api/CobuildConfiguration';
 
 const PLUGIN_NAME: 'ConsoleTimelinePlugin' = 'ConsoleTimelinePlugin';
 
@@ -53,13 +52,12 @@ export class ConsoleTimelinePlugin implements IPhasedCommandPlugin {
   }
 
   public apply(hooks: PhasedCommandHooks): void {
-    hooks.afterExecuteOperations.tap(
+    hooks.afterExecuteOperations.tapPromise(
       PLUGIN_NAME,
-      (result: IExecutionResult, context: ICreateOperationsContext): void => {
-        _printTimeline({
+      async (result: IExecutionResult, context: ICreateOperationsContext): Promise<void> => {
+        await _printTimeline({
           terminal: this._terminal,
-          result,
-          cobuildConfiguration: context.cobuildConfiguration
+          result
         });
       }
     );
@@ -118,7 +116,7 @@ interface ITimelineRecord {
   durationString: string;
   name: string;
   status: OperationStatus;
-  isExecuteByOtherCobuildRunner: boolean;
+  isExecutedByOtherCobuildRunner: boolean;
 }
 
 /**
@@ -127,14 +125,13 @@ interface ITimelineRecord {
 export interface IPrintTimelineParameters {
   terminal: ITerminal;
   result: IExecutionResult;
-  cobuildConfiguration: CobuildConfiguration | undefined;
 }
 
 /**
  * Print a more detailed timeline and analysis of CPU usage for the build.
  * @internal
  */
-export function _printTimeline({ terminal, result, cobuildConfiguration }: IPrintTimelineParameters): void {
+export async function _printTimeline({ terminal, result }: IPrintTimelineParameters): Promise<void> {
   //
   // Gather the operation records we'll be displaying. Do some inline max()
   // finding to reduce the number of times we need to loop through operations.
@@ -154,17 +151,26 @@ export function _printTimeline({ terminal, result, cobuildConfiguration }: IPrin
       continue;
     }
 
+    const isExecutedByOtherCobuildRunner: boolean =
+      !!operationResult.cobuildRunnerId && !operationResult.executedOnThisAgent;
+
     const { stopwatch } = operationResult;
 
-    const { startTime, endTime } = stopwatch;
+    const { startTime } = stopwatch;
+    let { endTime, duration } = stopwatch;
 
     if (startTime && endTime) {
+      // If this operation is cobuilt, print the cobuild time instead of the cache restore time.
+      if (isExecutedByOtherCobuildRunner) {
+        endTime = startTime + (operationResult.nonCachedDurationMs ?? 0);
+        duration = (endTime - startTime) / 1000.0;
+      }
+
       const nameLength: number = operation.name?.length || 0;
       if (nameLength > longestNameLength) {
         longestNameLength = nameLength;
       }
 
-      const { duration } = stopwatch;
       const durationString: string = duration.toFixed(1);
       const durationLength: number = durationString.length;
       if (durationLength > longestDurationLength) {
@@ -191,9 +197,7 @@ export function _printTimeline({ terminal, result, cobuildConfiguration }: IPrin
         durationString,
         name: operation.name!,
         status: operationResult.status,
-        isExecuteByOtherCobuildRunner:
-          !!operationResult.cobuildRunnerId &&
-          operationResult.cobuildRunnerId !== cobuildConfiguration?.cobuildRunnerId
+        isExecutedByOtherCobuildRunner
       });
     }
   }
@@ -236,8 +240,8 @@ export function _printTimeline({ terminal, result, cobuildConfiguration }: IPrin
   let hasCobuildSymbol: boolean = false;
 
   function getChartSymbol(record: ITimelineRecord): string {
-    const { isExecuteByOtherCobuildRunner, status } = record;
-    if (isExecuteByOtherCobuildRunner && COBUILD_REPORTABLE_STATUSES.has(status)) {
+    const { isExecutedByOtherCobuildRunner, status } = record;
+    if (isExecutedByOtherCobuildRunner && COBUILD_REPORTABLE_STATUSES.has(status)) {
       hasCobuildSymbol = true;
       return 'C';
     }

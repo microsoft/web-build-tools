@@ -52,6 +52,14 @@ export class Stopwatch implements IStopwatchResult {
     this._state = StopwatchState.Stopped;
   }
 
+  public static fromState({ startTime, endTime }: { startTime: number; endTime: number }): Stopwatch {
+    const stopwatch: Stopwatch = new Stopwatch();
+    stopwatch._startTime = startTime;
+    stopwatch._endTime = endTime;
+    stopwatch._state = StopwatchState.Stopped;
+    return stopwatch;
+  }
+
   /**
    * Static helper function which creates a stopwatch which is immediately started
    */

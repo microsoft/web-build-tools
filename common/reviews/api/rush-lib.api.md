@@ -584,6 +584,7 @@ export interface IOperationExecutionResult {
     readonly error: Error | undefined;
     readonly logFilePaths: ILogFilePaths | undefined;
     readonly metadataFolderPath: string | undefined;
+    readonly executedOnThisAgent: boolean;
     readonly nonCachedDurationMs: number | undefined;
     readonly operation: Operation;
     readonly silent: boolean;
