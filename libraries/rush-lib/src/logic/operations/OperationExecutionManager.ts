@@ -235,9 +235,7 @@ export class OperationExecutionManager {
 
     await this._beforeExecuteOperations?.(this._executionRecords);
 
-    // This function is a callback because it may write to the collatedWriter before
-    // operation.executeAsync returns (and cleans up the writer)
-    const onOperationCompleteAsync: (record: OperationExecutionRecord) => Promise<void> = async (
+    const beforeOperationResult: (record: OperationExecutionRecord) => Promise<void> = async (
       record: OperationExecutionRecord
     ) => {
       try {
@@ -247,7 +245,6 @@ export class OperationExecutionManager {
         record.error = e;
         record.status = OperationStatus.Failure;
       }
-      this._onOperationComplete(record);
     };
 
     const onOperationStartAsync: (
