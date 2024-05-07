@@ -160,12 +160,6 @@ export async function _printTimeline({ terminal, result }: IPrintTimelineParamet
     let { endTime, duration } = stopwatch;
 
     if (startTime && endTime) {
-      // If this operation is cobuilt, print the cobuild time instead of the cache restore time.
-      if (isExecutedByOtherCobuildRunner) {
-        endTime = startTime + (operationResult.nonCachedDurationMs ?? 0);
-        duration = (endTime - startTime) / 1000.0;
-      }
-
       const nameLength: number = operation.name?.length || 0;
       if (nameLength > longestNameLength) {
         longestNameLength = nameLength;

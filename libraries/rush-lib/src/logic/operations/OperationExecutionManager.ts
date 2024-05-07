@@ -273,8 +273,8 @@ export class OperationExecutionManager {
     const status: OperationStatus = this._hasAnyFailures
       ? OperationStatus.Failure
       : this._hasAnyNonAllowedWarnings
-        ? OperationStatus.SuccessWithWarning
-        : OperationStatus.Success;
+      ? OperationStatus.SuccessWithWarning
+      : OperationStatus.Success;
 
     return {
       operationResults: this._executionRecords,
