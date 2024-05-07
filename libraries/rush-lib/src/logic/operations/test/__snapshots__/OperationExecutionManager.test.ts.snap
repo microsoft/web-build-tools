@@ -241,7 +241,7 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (failure)[default] [gray]]---------------[[default] [white]0.20 seconds[default] [gray]]--[default]
+    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (failure)[default] [gray]]---------------[[default] [white]0.10 seconds[default] [gray]]--[default]
 
 ",
   },
@@ -329,7 +329,7 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (success)[default] [gray]]---------------[[default] [white]0.20 seconds[default] [gray]]--[default]
+    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (success)[default] [gray]]---------------[[default] [white]0.10 seconds[default] [gray]]--[default]
 
 ",
   },
@@ -408,7 +408,7 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "[cyan]success with warnings (success)[default] [gray][default][yellow]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!![default][gray][default] [white]0.2s[default]
+    "text": "[cyan]success with warnings (success)[default] [gray][default][yellow]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!![default][gray][default] [white]0.1s[default]
 ",
   },
   Object {
@@ -418,12 +418,12 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "LEGEND:                                                                   Total Work: 0.2s
+    "text": "LEGEND:                                                                   Total Work: 0.1s
 ",
   },
   Object {
     "kind": "O",
-    "text": "  [#] Success  [!] Failed/warnings  [%] Skipped/cached/no-op              Wall Clock: 0.2s
+    "text": "  [#] Success  [!] Failed/warnings  [%] Skipped/cached/no-op              Wall Clock: 0.1s
 ",
   },
   Object {
@@ -456,7 +456,7 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (success)[default] [gray]]---------------[[default] [white]0.20 seconds[default] [gray]]--[default]
+    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (success)[default] [gray]]---------------[[default] [white]0.10 seconds[default] [gray]]--[default]
 
 ",
   },
