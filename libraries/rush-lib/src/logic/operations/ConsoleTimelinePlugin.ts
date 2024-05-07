@@ -156,8 +156,7 @@ export async function _printTimeline({ terminal, result }: IPrintTimelineParamet
 
     const { stopwatch } = operationResult;
 
-    const { startTime } = stopwatch;
-    let { endTime, duration } = stopwatch;
+    const { startTime, endTime, duration } = stopwatch;
 
     if (startTime && endTime) {
       const nameLength: number = operation.name?.length || 0;
