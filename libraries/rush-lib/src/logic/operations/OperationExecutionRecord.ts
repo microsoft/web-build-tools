@@ -183,8 +183,10 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
   }
 
   public get executedOnThisAgent(): boolean {
+    if (!this._context.cobuildConfiguration) {
+      return this.cobuildRunnerId === undefined;
+    }
     return (
-      !!this._context.cobuildConfiguration &&
       // this can happen if this property is retrieved before `beforeResult` is called.
       this.cobuildRunnerId !== undefined &&
       this._context.cobuildConfiguration?.cobuildRunnerId === this.cobuildRunnerId
