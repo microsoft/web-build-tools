@@ -313,7 +313,6 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
     if (!this.isTerminal) {
       this.stopwatch.reset();
     }
-    this.stopwatch.start();
     this.status = OperationStatus.Executing;
 
     try {
@@ -340,10 +339,15 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
         this._collatedWriter?.close();
         this.stdioSummarizer.close();
         this.stopwatch.stop();
-        if (!this.executedOnThisAgent && this.nonCachedDurationMs) {
+        if (
+          !this.executedOnThisAgent &&
+          this.nonCachedDurationMs &&
+          this.status !== OperationStatus.FromCache
+        ) {
           const { startTime } = this.stopwatch;
           if (startTime) {
             this.stopwatch = Stopwatch.fromState({
+              // use endtime as it's the more accurate version of when this operation was marked as complete.
               startTime,
               endTime: startTime + this.nonCachedDurationMs
             });
