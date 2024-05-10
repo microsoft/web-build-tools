@@ -259,7 +259,7 @@ export class OperationExecutionManager {
         await record.executeAsync({
           onStart: onOperationStartAsync,
           beforeResult: beforeOperationResult,
-          onResult: this._onOperationComplete
+          onResult: this._onOperationComplete.bind(this)
         });
       },
       {
