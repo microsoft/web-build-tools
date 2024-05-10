@@ -55,7 +55,7 @@ export class ConsoleTimelinePlugin implements IPhasedCommandPlugin {
     hooks.afterExecuteOperations.tapPromise(
       PLUGIN_NAME,
       async (result: IExecutionResult, context: ICreateOperationsContext): Promise<void> => {
-        await _printTimeline({
+        _printTimeline({
           terminal: this._terminal,
           result
         });
@@ -131,7 +131,7 @@ export interface IPrintTimelineParameters {
  * Print a more detailed timeline and analysis of CPU usage for the build.
  * @internal
  */
-export async function _printTimeline({ terminal, result }: IPrintTimelineParameters): Promise<void> {
+export function _printTimeline({ terminal, result }: IPrintTimelineParameters): void {
   //
   // Gather the operation records we'll be displaying. Do some inline max()
   // finding to reduce the number of times we need to loop through operations.
