@@ -259,8 +259,7 @@ export class OperationExecutionManager {
         await record.executeAsync({
           onStart: onOperationStartAsync,
           beforeResult: beforeOperationResult,
-          onResult: async (finishedRecord: OperationExecutionRecord) =>
-            this._onOperationComplete(finishedRecord)
+          onResult: this._onOperationComplete
         });
       },
       {
@@ -307,7 +306,7 @@ export class OperationExecutionManager {
   /**
    * Handles the result of the operation and propagates any relevant effects.
    */
-  private _onOperationComplete(record: OperationExecutionRecord): void {
+  private async _onOperationComplete(record: OperationExecutionRecord): Promise<void> {
     const { runner, name, status, silent } = record;
 
     switch (status) {
