@@ -52,9 +52,9 @@ export class ConsoleTimelinePlugin implements IPhasedCommandPlugin {
   }
 
   public apply(hooks: PhasedCommandHooks): void {
-    hooks.afterExecuteOperations.tapPromise(
+    hooks.afterExecuteOperations.tap(
       PLUGIN_NAME,
-      async (result: IExecutionResult, context: ICreateOperationsContext): Promise<void> => {
+      (result: IExecutionResult, context: ICreateOperationsContext): void => {
         _printTimeline({
           terminal: this._terminal,
           result
