@@ -94,6 +94,10 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
    */
   public readonly consumers: Set<OperationExecutionRecord> = new Set();
 
+  /**
+   * The stopwatch used to measure the duration of this operation. This is purposefully not
+   *  readonly as we want to override it in the case of a cache hit.
+   */
   private _stopwatch: Stopwatch = new Stopwatch();
   public readonly stdioSummarizer: StdioSummarizer = new StdioSummarizer({
     // Allow writing to this object after transforms have been closed. We clean it up manually in a finally block.
