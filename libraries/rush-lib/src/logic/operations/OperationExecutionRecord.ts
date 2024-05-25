@@ -316,7 +316,7 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
   }: {
     onStart: (record: OperationExecutionRecord) => Promise<OperationStatus | undefined>;
     beforeResult: (record: OperationExecutionRecord) => Promise<void>;
-    onResult: (record: OperationExecutionRecord) => Promise<void>;
+    onResult: (record: OperationExecutionRecord) => Promise<void> | void;
   }): Promise<void> {
     if (!this.isTerminal) {
       this.stopwatch.reset();
