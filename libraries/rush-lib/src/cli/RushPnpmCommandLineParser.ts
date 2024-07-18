@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved. Licensed under the MIT license.
 // See LICENSE in the project root for license information.
 
-import * as path from 'path';
 import {
   AlreadyReportedError,
   EnvironmentMap,
@@ -28,7 +27,6 @@ import { PurgeManager } from '../logic/PurgeManager';
 import type { IBuiltInPluginConfiguration } from '../pluginFramework/PluginLoader/BuiltInPluginLoader';
 import type { BaseInstallManager } from '../logic/base/BaseInstallManager';
 import type { IInstallManagerOptions } from '../logic/base/BaseInstallManagerTypes';
-import { objectsAreDeepEqual } from '../utilities/objectUtilities';
 import { Utilities } from '../utilities/Utilities';
 import type { Subspace } from '../api/Subspace';
 
@@ -136,7 +134,7 @@ export class RushPnpmCommandLineParser {
     this._subspace = subspace;
 
     const workspaceFolder: string = subspace.getSubspaceTempFolder();
-    const workspaceFilePath: string = path.join(workspaceFolder, 'pnpm-workspace.yaml');
+    const workspaceFilePath: string = `${workspaceFolder}/pnpm-workspace.yaml`;
 
     if (!FileSystem.exists(workspaceFilePath)) {
       this._terminal.writeErrorLine('Error: The PNPM workspace file has not been generated:');
@@ -317,12 +315,10 @@ export class RushPnpmCommandLineParser {
           }
           break;
         }
+
         case 'patch-commit': {
-          const pnpmOptionsJsonFilename: string = path.join(
-            this._rushConfiguration.commonRushConfigFolder,
-            RushConstants.pnpmConfigFilename
-          );
           if (this._rushConfiguration.rushConfigurationJson.pnpmOptions) {
+            const pnpmOptionsJsonFilename: string = `${this._rushConfiguration.commonRushConfigFolder}/${RushConstants.pnpmConfigFilename}`;
             this._terminal.writeErrorLine(
               PrintUtilities.wrapWords(
                 `Error: The "pnpm patch-commit" command is incompatible with specifying "pnpmOptions" in ${RushConstants.rushJsonFilename} file.` +
@@ -330,6 +326,15 @@ export class RushPnpmCommandLineParser {
               ) + '\n'
             );
             throw new AlreadyReportedError();
+          }
+
+          // patch-commit internally calls installation under cwd instead of the common/temp folder
+          // It throws missing package.json error, so in this case, we need to set the dir to the common/temp folder here
+          if (!pnpmArgs.includes('--dir') && !pnpmArgs.includes('-C')) {
+            if (!(await FileSystem.existsAsync(`${process.cwd()}/${FileConstants.PackageJson}`))) {
+              pnpmArgs.push('--dir');
+              pnpmArgs.push(this._rushConfiguration.commonTempFolder);
+            }
           }
           break;
         }
@@ -448,46 +453,42 @@ export class RushPnpmCommandLineParser {
       case 'patch-commit': {
         // Example: "C:\MyRepo\common\temp\package.json"
         const commonPackageJsonFilename: string = `${subspaceTempFolder}/${FileConstants.PackageJson}`;
-        const commonPackageJson: JsonObject = JsonFile.load(commonPackageJsonFilename);
+        const commonPackageJson: JsonObject = await JsonFile.loadAsync(commonPackageJsonFilename);
         const newGlobalPatchedDependencies: Record<string, string> | undefined =
           commonPackageJson?.pnpm?.patchedDependencies;
-        const currentGlobalPatchedDependencies: Record<string, string> | undefined =
-          this._rushConfiguration.pnpmOptions.globalPatchedDependencies;
 
-        if (!objectsAreDeepEqual(currentGlobalPatchedDependencies, newGlobalPatchedDependencies)) {
-          const commonTempPnpmPatchesFolder: string = `${subspaceTempFolder}/${RushConstants.pnpmPatchesFolderName}`;
-          const rushPnpmPatchesFolder: string = `${this._rushConfiguration.commonFolder}/${RushConstants.pnpmPatchesCommonFolderName}`;
-          // Copy (or delete) common\temp\patches\ --> common\pnpm-patches\
-          if (FileSystem.exists(commonTempPnpmPatchesFolder)) {
-            FileSystem.ensureEmptyFolder(rushPnpmPatchesFolder);
+        const commonTempPnpmPatchesFolder: string = `${subspaceTempFolder}/${RushConstants.pnpmPatchesFolderName}`;
+        const rushPnpmPatchesFolder: string = `${this._rushConfiguration.commonFolder}/${RushConstants.pnpmPatchesCommonFolderName}`;
+        // Copy (or delete) common\temp\patches\ --> common\pnpm-patches\
+        if (await FileSystem.existsAsync(commonTempPnpmPatchesFolder)) {
+          await FileSystem.ensureEmptyFolderAsync(rushPnpmPatchesFolder);
+          // eslint-disable-next-line no-console
+          console.log(`Copying ${commonTempPnpmPatchesFolder}`);
+          // eslint-disable-next-line no-console
+          console.log(`  --> ${rushPnpmPatchesFolder}`);
+          await FileSystem.copyFilesAsync({
+            sourcePath: commonTempPnpmPatchesFolder,
+            destinationPath: rushPnpmPatchesFolder
+          });
+        } else {
+          if (await FileSystem.existsAsync(rushPnpmPatchesFolder)) {
             // eslint-disable-next-line no-console
-            console.log(`Copying ${commonTempPnpmPatchesFolder}`);
-            // eslint-disable-next-line no-console
-            console.log(`  --> ${rushPnpmPatchesFolder}`);
-            FileSystem.copyFiles({
-              sourcePath: commonTempPnpmPatchesFolder,
-              destinationPath: rushPnpmPatchesFolder
-            });
-          } else {
-            if (FileSystem.exists(rushPnpmPatchesFolder)) {
-              // eslint-disable-next-line no-console
-              console.log(`Deleting ${rushPnpmPatchesFolder}`);
-              FileSystem.deleteFolder(rushPnpmPatchesFolder);
-            }
+            console.log(`Deleting ${rushPnpmPatchesFolder}`);
+            await FileSystem.deleteFolderAsync(rushPnpmPatchesFolder);
           }
-
-          // Update patchedDependencies to pnpm configuration file
-          this._rushConfiguration.pnpmOptions.updateGlobalPatchedDependencies(newGlobalPatchedDependencies);
-
-          // Rerun installation to update
-          await this._doRushUpdateAsync();
-
-          this._terminal.writeWarningLine(
-            `Rush refreshed the ${RushConstants.pnpmConfigFilename}, shrinkwrap file and patch files under the ` +
-              `"${RushConstants.commonFolderName}/${RushConstants.pnpmPatchesCommonFolderName}" folder.\n` +
-              '  Please commit this change to Git.'
-          );
         }
+
+        // Update patchedDependencies to pnpm configuration file
+        this._rushConfiguration.pnpmOptions.updateGlobalPatchedDependencies(newGlobalPatchedDependencies);
+
+        // Rerun installation to update
+        await this._doRushUpdateAsync();
+
+        this._terminal.writeWarningLine(
+          `Rush refreshed the ${RushConstants.pnpmConfigFilename}, shrinkwrap file and patch files under the ` +
+            `"${RushConstants.commonFolderName}/${RushConstants.pnpmPatchesCommonFolderName}" folder.\n` +
+            '  Please commit this change to Git.'
+        );
         break;
       }
     }

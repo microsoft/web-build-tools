@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Fix an issue with `rush-pnpm patch-commit` where it did not correctly sync patches on subsequent runs for the same dependency.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

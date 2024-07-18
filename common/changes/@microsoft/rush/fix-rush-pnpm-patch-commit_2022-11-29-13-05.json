@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Fix an issue with `rush-pnpm patch-commit`, where it would error if it was run from the root of the monorepo.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}
