@@ -15,9 +15,9 @@ describe('ExtractorConfig', () => {
       ['test.css', false],
       ['test.css.ts', false],
       ['test.css.d.ts', true],
+      ['test.d.css.ts', true],
       ['test.json', false],
       ['test.json.ts', false],
-      ['test.d.css.ts', true],
       ['test.json.d.ts', true],
       ['test.d.json.ts', true]
     ])('file "%s" has dts file extension equals "%s"', (file, expected) => {
