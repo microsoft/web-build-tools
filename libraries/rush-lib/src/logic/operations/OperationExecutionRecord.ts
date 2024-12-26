@@ -25,6 +25,11 @@ import type { RushConfigurationProject } from '../../api/RushConfigurationProjec
 import { CollatedTerminalProvider } from '../../utilities/CollatedTerminalProvider';
 import type { IOperationExecutionResult } from './IOperationExecutionResult';
 import type { CobuildConfiguration } from '../../api/CobuildConfiguration';
+import {
+  getProjectLogFilePaths,
+  type ILogFilePaths,
+  initializeProjectLogFilesAsync
+} from './ProjectLogWritable';
 
 export interface IOperationExecutionRecordContext {
   streamCollator: StreamCollator;
@@ -334,8 +339,8 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
         this.status = this.operation.enabled
           ? await this.runner.executeAsync(this)
           : this.runner.isNoOp
-          ? OperationStatus.NoOp
-          : OperationStatus.Skipped;
+            ? OperationStatus.NoOp
+            : OperationStatus.Skipped;
       }
     } catch (error) {
       this.status = OperationStatus.Failure;
@@ -361,12 +366,6 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
             });
           }
         }
-      }
-      // Delegate global state reporting
-      await onResult(this);
-      if (this.status !== OperationStatus.RemoteExecuting) {
-        this._collatedWriter?.close();
-        this.stdioSummarizer.close();
       }
     }
   }
