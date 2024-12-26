@@ -4,16 +4,13 @@
     {
       "operationName": "_phase:build",
       "outputFolderNames": ["dist"],
-      "allowCobuildOrchestration": true,
-      "disableBuildCacheForOperation": true,
       "sharding": {
         "count": 75
       }
     },
     {
       "operationName": "_phase:build:shard",
-      "weight": 10,
-      "allowCobuildOrchestration": true
+      "weight": 10
     }
   ]
 }

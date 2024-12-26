@@ -323,8 +323,8 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
     beforeResult: (record: OperationExecutionRecord) => Promise<void>;
     onResult: (record: OperationExecutionRecord) => Promise<void> | void;
   }): Promise<void> {
-    if (!this.isTerminal) {
-      this.stopwatch.reset();
+    if (this.stopwatch.startTime === undefined) {
+      this.stopwatch.start();
     }
     this.status = OperationStatus.Executing;
 
@@ -349,8 +349,6 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
       // We may need to clean up and finalize resources (_operationMetadataManager for example needs to be saved by CacheableOperationPlugin)
       await beforeResult(this);
       if (this.isTerminal) {
-        this._collatedWriter?.close();
-        this.stdioSummarizer.close();
         this.stopwatch.stop();
         if (
           !this.executedOnThisAgent &&
@@ -366,6 +364,11 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
             });
           }
         }
+      }
+      await onResult(this);
+      if (this.isTerminal) {
+        this._collatedWriter?.close();
+        this.stdioSummarizer.close();
       }
     }
   }
