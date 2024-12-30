@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Allow injected dependencies without enabling subspaces.",
+      "type": "none",
+      "packageName": "@microsoft/rush"
+    }
+  ],
+  "packageName": "@microsoft/rush",
+  "email": "aramissennyeydd@users.noreply.github.com"
+}

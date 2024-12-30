@@ -200,7 +200,7 @@ export class RepoStateFile {
       this._modified = true;
     }
 
-    if (rushConfiguration.isPnpm && rushConfiguration.subspacesFeatureEnabled) {
+    if (rushConfiguration.isPnpm) {
       const packageJsonInjectedDependenciesHash: string | undefined =
         subspace.getPackageJsonInjectedDependenciesHash(variant);
 
