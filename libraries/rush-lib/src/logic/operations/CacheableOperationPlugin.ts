@@ -409,7 +409,9 @@ export class CacheableOperationPlugin implements IPhasedCommandPlugin {
                   await operationMetadataManager?.tryRestoreAsync({
                     terminalProvider,
                     terminal: buildCacheTerminal,
-                    errorLogPath
+                    errorLogPath,
+                    cobuildContextId: cobuildConfiguration?.cobuildContextId,
+                    cobuildRunnerId: cobuildConfiguration?.cobuildRunnerId
                   });
                 },
                 { createLogFile: false }

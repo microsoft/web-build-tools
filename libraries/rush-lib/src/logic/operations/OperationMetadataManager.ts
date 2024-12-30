@@ -18,6 +18,7 @@ import type { IPhase } from '../../api/CommandLineConfiguration';
 import type { RushConfigurationProject } from '../../api/RushConfigurationProject';
 import type { IOperationStateJson } from './OperationStateFile';
 import type { Operation } from './Operation';
+import { type IStopwatchResult, Stopwatch } from '../../utilities/Stopwatch';
 
 /**
  * @internal
@@ -56,6 +57,7 @@ export class OperationMetadataManager {
   private readonly _logPath: string;
   private readonly _errorLogPath: string;
   private readonly _logChunksPath: string;
+  public wasCobuilt: boolean = false;
 
   public constructor(options: IOperationMetadataManagerOptions) {
     const {
@@ -135,13 +137,22 @@ export class OperationMetadataManager {
   public async tryRestoreAsync({
     terminal,
     terminalProvider,
-    errorLogPath
+    errorLogPath,
+    cobuildContextId,
+    cobuildRunnerId
   }: {
     terminalProvider: ITerminalProvider;
     terminal: ITerminal;
     errorLogPath: string;
+    cobuildContextId?: string;
+    cobuildRunnerId?: string;
   }): Promise<void> {
     await this.stateFile.tryRestoreAsync();
+    this.wasCobuilt =
+      this.stateFile.state?.cobuildContextId !== undefined &&
+      cobuildContextId !== undefined &&
+      this.stateFile.state?.cobuildContextId === cobuildContextId &&
+      this.stateFile.state?.cobuildRunnerId !== cobuildRunnerId;
 
     try {
       const rawLogChunks: string = await FileSystem.readFileAsync(this._logChunksPath);
@@ -178,6 +189,18 @@ export class OperationMetadataManager {
         throw e;
       }
     }
+  }
+
+  public tryRestoreStopwatch(originalStopwatch: IStopwatchResult): IStopwatchResult {
+    if (this.wasCobuilt && this.stateFile.state && originalStopwatch.endTime !== undefined) {
+      const endTime: number = originalStopwatch.endTime;
+      const startTime: number = Math.max(0, endTime - (this.stateFile.state.nonCachedDurationMs ?? 0));
+      return Stopwatch.fromState({
+        startTime,
+        endTime
+      });
+    }
+    return originalStopwatch;
   }
 }
 

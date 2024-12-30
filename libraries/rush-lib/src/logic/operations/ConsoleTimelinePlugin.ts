@@ -12,6 +12,8 @@ import type {
 } from '../../pluginFramework/PhasedCommandHooks';
 import type { IExecutionResult } from './IOperationExecutionResult';
 import { OperationStatus } from './OperationStatus';
+import type { CobuildConfiguration } from '../../api/CobuildConfiguration';
+import type { OperationExecutionRecord } from './OperationExecutionRecord';
 
 const PLUGIN_NAME: 'ConsoleTimelinePlugin' = 'ConsoleTimelinePlugin';
 
@@ -57,7 +59,8 @@ export class ConsoleTimelinePlugin implements IPhasedCommandPlugin {
       (result: IExecutionResult, context: ICreateOperationsContext): void => {
         _printTimeline({
           terminal: this._terminal,
-          result
+          result,
+          cobuildConfiguration: context.cobuildConfiguration
         });
       }
     );
@@ -116,7 +119,7 @@ interface ITimelineRecord {
   durationString: string;
   name: string;
   status: OperationStatus;
-  isExecutedByOtherCobuildRunner: boolean;
+  isExecuteByOtherCobuildRunner: boolean;
 }
 
 /**
@@ -125,6 +128,12 @@ interface ITimelineRecord {
 export interface IPrintTimelineParameters {
   terminal: ITerminal;
   result: IExecutionResult;
+  cobuildConfiguration?: CobuildConfiguration;
+}
+
+interface ICachedDuration {
+  cached?: number;
+  uncached: number;
 }
 
 /**
@@ -137,7 +146,7 @@ export function _printTimeline({ terminal, result }: IPrintTimelineParameters): 
   // finding to reduce the number of times we need to loop through operations.
   //
 
-  const durationByPhase: Map<IPhase, number> = new Map();
+  const durationByPhase: Map<IPhase, ICachedDuration> = new Map();
 
   const data: ITimelineRecord[] = [];
   let longestNameLength: number = 0;
@@ -151,20 +160,35 @@ export function _printTimeline({ terminal, result }: IPrintTimelineParameters): 
       continue;
     }
 
-    const isExecutedByOtherCobuildRunner: boolean =
-      !!operationResult.cobuildRunnerId && !operationResult.executedOnThisAgent;
-
     const { stopwatch } = operationResult;
+    const { _operationMetadataManager: operationMetadataManager } =
+      operationResult as OperationExecutionRecord;
 
-    const { startTime, endTime, duration } = stopwatch;
+    let { startTime } = stopwatch;
+    const { endTime } = stopwatch;
+
+    const duration: ICachedDuration = { cached: undefined, uncached: stopwatch.duration };
 
     if (startTime && endTime) {
       const nameLength: number = operation.name?.length || 0;
       if (nameLength > longestNameLength) {
         longestNameLength = nameLength;
       }
+      const wasCobuilt: boolean = !!operationMetadataManager?.wasCobuilt;
+      if (
+        operationResult.status !== OperationStatus.FromCache &&
+        operationMetadataManager &&
+        wasCobuilt &&
+        operationResult.nonCachedDurationMs
+      ) {
+        duration.cached = stopwatch.duration;
+        startTime = Math.max(0, endTime - operationResult.nonCachedDurationMs);
+        duration.uncached = (endTime - startTime) / 1000;
+      }
 
-      const durationString: string = duration.toFixed(1);
+      workDuration += stopwatch.duration;
+
+      const durationString: string = duration.uncached.toFixed(1);
       const durationLength: number = durationString.length;
       if (durationLength > longestDurationLength) {
         longestDurationLength = durationLength;
@@ -176,12 +200,20 @@ export function _printTimeline({ terminal, result }: IPrintTimelineParameters): 
       if (startTime < allStart) {
         allStart = startTime;
       }
-      workDuration += duration;
 
       const { associatedPhase } = operation;
 
       if (associatedPhase) {
-        durationByPhase.set(associatedPhase, (durationByPhase.get(associatedPhase) || 0) + duration);
+        const previousDuration: ICachedDuration = durationByPhase.get(associatedPhase) ?? {
+          cached: undefined,
+          uncached: 0
+        };
+        const cachedDuration: number | undefined =
+          duration.cached !== undefined
+            ? duration.cached + (previousDuration.cached ?? 0)
+            : previousDuration.cached;
+        const uncachedDuration: number = duration.uncached + previousDuration.uncached;
+        durationByPhase.set(associatedPhase, { cached: cachedDuration, uncached: uncachedDuration });
       }
 
       data.push({
@@ -190,7 +222,7 @@ export function _printTimeline({ terminal, result }: IPrintTimelineParameters): 
         durationString,
         name: operation.name!,
         status: operationResult.status,
-        isExecutedByOtherCobuildRunner
+        isExecuteByOtherCobuildRunner: wasCobuilt
       });
     }
   }
@@ -233,8 +265,8 @@ export function _printTimeline({ terminal, result }: IPrintTimelineParameters): 
   let hasCobuildSymbol: boolean = false;
 
   function getChartSymbol(record: ITimelineRecord): string {
-    const { isExecutedByOtherCobuildRunner, status } = record;
-    if (isExecutedByOtherCobuildRunner && COBUILD_REPORTABLE_STATUSES.has(status)) {
+    const { isExecuteByOtherCobuildRunner, status } = record;
+    if (isExecuteByOtherCobuildRunner && COBUILD_REPORTABLE_STATUSES.has(status)) {
       hasCobuildSymbol = true;
       return 'C';
     }
@@ -309,7 +341,10 @@ export function _printTimeline({ terminal, result }: IPrintTimelineParameters): 
     }
 
     for (const [phase, duration] of durationByPhase.entries()) {
-      terminal.writeLine(`  ${Colorize.cyan(phase.name.padStart(maxPhaseName))} ${duration.toFixed(1)}s`);
+      const durationString: string = duration.cached
+        ? `${duration.uncached.toFixed(1)}s, from cache: ${duration.cached.toFixed(1)}s`
+        : `${duration.uncached.toFixed(1)}s`;
+      terminal.writeLine(`  ${Colorize.cyan(phase.name.padStart(maxPhaseName))} ${durationString}`);
     }
   }
 

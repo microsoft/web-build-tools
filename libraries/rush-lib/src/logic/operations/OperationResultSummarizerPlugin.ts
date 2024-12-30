@@ -12,6 +12,8 @@ import type {
 import type { IExecutionResult, IOperationExecutionResult } from './IOperationExecutionResult';
 import type { Operation } from './Operation';
 import { OperationStatus } from './OperationStatus';
+import type { OperationExecutionRecord } from './OperationExecutionRecord';
+import type { IStopwatchResult } from '../../utilities/Stopwatch';
 
 const PLUGIN_NAME: 'OperationResultSummarizerPlugin' = 'OperationResultSummarizerPlugin';
 
@@ -179,14 +181,23 @@ function writeCondensedSummary(
   }
 
   for (const [operation, operationResult] of operations) {
+    const { _operationMetadataManager: operationMetadataManager } =
+      operationResult as OperationExecutionRecord;
+    const stopwatch: IStopwatchResult =
+      operationMetadataManager?.tryRestoreStopwatch(operationResult.stopwatch) ?? operationResult.stopwatch;
     if (
-      operationResult.stopwatch.duration !== 0 &&
+      stopwatch.duration !== 0 &&
       operation.runner!.reportTiming &&
       operationResult.status !== OperationStatus.Skipped
     ) {
-      const time: string = operationResult.stopwatch.toString();
+      const time: string = stopwatch.toString();
       const padding: string = ' '.repeat(longestTaskName - (operation.name || '').length);
-      terminal.writeLine(`  ${operation.name}${padding}    ${time}`);
+      const cacheString: string = operationMetadataManager?.wasCobuilt
+        ? ` (restore ${(
+            (operationResult.stopwatch.endTime ?? 0) - (operationResult.stopwatch.startTime ?? 0)
+          ).toFixed(1)}ms)`
+        : '';
+      terminal.writeLine(`  ${operation.name}${padding}    ${time}${cacheString}`);
     } else {
       terminal.writeLine(`  ${operation.name}`);
     }
@@ -221,6 +232,8 @@ function writeDetailedSummary(
   }
 
   for (const [operation, operationResult] of operations) {
+    const { _operationMetadataManager: operationMetadataManager } =
+      operationResult as OperationExecutionRecord;
     // Format a header like this
     //
     // --[ WARNINGS: f ]------------------------------------[ 5.07 seconds ]--
@@ -231,7 +244,9 @@ function writeDetailedSummary(
     const leftPartLength: number = 4 + subheadingText.length + 1;
 
     // rightPart: " 5.07 seconds ]--"
-    const time: string = operationResult.stopwatch.toString();
+    const stopwatch =
+      operationMetadataManager?.tryRestoreStopwatch(operationResult.stopwatch) ?? operationResult.stopwatch;
+    const time: string = stopwatch.toString();
     const rightPartLength: number = 1 + time.length + 1 + 3;
 
     // middlePart: "]----------------------["

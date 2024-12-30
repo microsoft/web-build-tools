@@ -23,19 +23,17 @@ import { OperationMetadataManager } from './OperationMetadataManager';
 import type { IPhase } from '../../api/CommandLineConfiguration';
 import type { RushConfigurationProject } from '../../api/RushConfigurationProject';
 import { CollatedTerminalProvider } from '../../utilities/CollatedTerminalProvider';
-import type { IOperationExecutionResult } from './IOperationExecutionResult';
-import type { CobuildConfiguration } from '../../api/CobuildConfiguration';
 import {
   getProjectLogFilePaths,
   type ILogFilePaths,
   initializeProjectLogFilesAsync
 } from './ProjectLogWritable';
+import type { IOperationExecutionResult } from './IOperationExecutionResult';
 
 export interface IOperationExecutionRecordContext {
   streamCollator: StreamCollator;
   onOperationStatusChanged?: (record: OperationExecutionRecord) => void;
 
-  cobuildConfiguration?: CobuildConfiguration;
   debugMode: boolean;
   quietMode: boolean;
 }
@@ -99,11 +97,7 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
    */
   public readonly consumers: Set<OperationExecutionRecord> = new Set();
 
-  /**
-   * The stopwatch used to measure the duration of this operation. This is purposefully not
-   *  readonly as we want to override it in the case of a cache hit.
-   */
-  private _stopwatch: Stopwatch = new Stopwatch();
+  public readonly stopwatch: Stopwatch = new Stopwatch();
   public readonly stdioSummarizer: StdioSummarizer = new StdioSummarizer({
     // Allow writing to this object after transforms have been closed. We clean it up manually in a finally block.
     preventAutoclose: true
@@ -165,10 +159,6 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
     return this._context.quietMode;
   }
 
-  public get stopwatch(): Stopwatch {
-    return this._stopwatch;
-  }
-
   public get collatedWriter(): CollatedWriter {
     // Lazy instantiate because the registerTask() call affects display ordering
     if (!this._collatedWriter) {
@@ -193,17 +183,6 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
 
   public get isTerminal(): boolean {
     return TERMINAL_STATUSES.has(this.status);
-  }
-
-  public get executedOnThisAgent(): boolean {
-    if (!this._context.cobuildConfiguration) {
-      return this.cobuildRunnerId === undefined;
-    }
-    return (
-      // this can happen if this property is retrieved before `beforeResult` is called.
-      this.cobuildRunnerId !== undefined &&
-      this._context.cobuildConfiguration?.cobuildRunnerId === this.cobuildRunnerId
-    );
   }
 
   /**
@@ -316,16 +295,15 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
 
   public async executeAsync({
     onStart,
-    onResult,
-    beforeResult
+    onResult
   }: {
     onStart: (record: OperationExecutionRecord) => Promise<OperationStatus | undefined>;
-    beforeResult: (record: OperationExecutionRecord) => Promise<void>;
-    onResult: (record: OperationExecutionRecord) => Promise<void> | void;
+    onResult: (record: OperationExecutionRecord) => Promise<void>;
   }): Promise<void> {
-    if (this.stopwatch.startTime === undefined) {
-      this.stopwatch.start();
+    if (!this.isTerminal) {
+      this.stopwatch.reset();
     }
+    this.stopwatch.start();
     this.status = OperationStatus.Executing;
 
     try {
@@ -342,30 +320,16 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
             ? OperationStatus.NoOp
             : OperationStatus.Skipped;
       }
+      this.stopwatch.stop();
+      // Delegate global state reporting
+      await onResult(this);
     } catch (error) {
       this.status = OperationStatus.Failure;
       this.error = error;
-    } finally {
-      // We may need to clean up and finalize resources (_operationMetadataManager for example needs to be saved by CacheableOperationPlugin)
-      await beforeResult(this);
-      if (this.isTerminal) {
-        this.stopwatch.stop();
-        if (
-          !this.executedOnThisAgent &&
-          this.nonCachedDurationMs &&
-          this.status !== OperationStatus.FromCache
-        ) {
-          const { startTime } = this.stopwatch;
-          if (startTime) {
-            this._stopwatch = Stopwatch.fromState({
-              // use endtime as it's the more accurate version of when this operation was marked as complete.
-              startTime,
-              endTime: startTime + this.nonCachedDurationMs
-            });
-          }
-        }
-      }
+      this.stopwatch.stop();
+      // Delegate global state reporting
       await onResult(this);
+    } finally {
       if (this.isTerminal) {
         this._collatedWriter?.close();
         this.stdioSummarizer.close();
