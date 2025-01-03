@@ -34,9 +34,9 @@ import { MockOperationRunner } from './MockOperationRunner';
 import type { IExecutionResult, IOperationExecutionResult } from '../IOperationExecutionResult';
 import { CollatedTerminalProvider } from '../../../utilities/CollatedTerminalProvider';
 import type { CobuildConfiguration } from '../../../api/CobuildConfiguration';
-import { RushConfigurationProject } from '../../../api/RushConfigurationProject';
-import { IPhase } from '../../../api/CommandLineConfiguration';
-import { IOperationStateJson, OperationStateFile } from '../OperationStateFile';
+import type { RushConfigurationProject } from '../../../api/RushConfigurationProject';
+import type { IPhase } from '../../../api/CommandLineConfiguration';
+import type { OperationStateFile } from '../OperationStateFile';
 
 const mockGetTimeInMs: jest.Mock = jest.fn();
 Utilities.getTimeInMs = mockGetTimeInMs;
@@ -266,14 +266,14 @@ describe(OperationExecutionManager.name, () => {
 
   describe('Cobuild logging', () => {
     beforeEach(() => {
-      let mockTimeInMs: number = 0;
+      let mockCobuildTimeInMs: number = 0;
       mockGetTimeInMs.mockImplementation(() => {
-        mockTimeInMs += 10_000;
-        return mockTimeInMs;
+        mockCobuildTimeInMs += 10_000;
+        return mockCobuildTimeInMs;
       });
     });
-    function createExecutionManager(
-      executionManagerOptions: IOperationExecutionManagerOptions,
+    function createCobuildExecutionManager(
+      cobuildExecutionManagerOptions: IOperationExecutionManagerOptions,
       operationRunnerFactory: (name: string) => IOperationRunner,
       phase: IPhase,
       project: RushConfigurationProject
@@ -293,25 +293,25 @@ describe(OperationExecutionManager.name, () => {
       });
 
       return new OperationExecutionManager(new Set([operation, operation2]), {
-        afterExecuteOperationAsync: async (operation) => {
-          if (!operation._operationMetadataManager) {
+        afterExecuteOperationAsync: async (record) => {
+          if (!record._operationMetadataManager) {
             throw new Error('OperationMetadataManager is not defined');
           }
           // Mock the readonly state property.
-          (operation._operationMetadataManager as any).stateFile = {
+          (record._operationMetadataManager as unknown as Record<string, unknown>).stateFile = {
             state: {
               cobuildContextId: '123',
               cobuildRunnerId: '456',
               nonCachedDurationMs: 15_000
             }
           } as unknown as OperationStateFile;
-          operation._operationMetadataManager.wasCobuilt = true;
+          record._operationMetadataManager.wasCobuilt = true;
         },
-        ...executionManagerOptions
+        ...cobuildExecutionManagerOptions
       });
     }
     it('logs cobuilt operations correctly with --timeline option', async () => {
-      executionManager = createExecutionManager(
+      executionManager = createCobuildExecutionManager(
         executionManagerOptions,
         (name) =>
           new MockOperationRunner(
@@ -338,7 +338,7 @@ describe(OperationExecutionManager.name, () => {
       expect(mockWritable.getFormattedChunks()).toMatchSnapshot();
     });
     it('logs warnings correctly with --timeline option', async () => {
-      executionManager = createExecutionManager(
+      executionManager = createCobuildExecutionManager(
         executionManagerOptions,
         (name) =>
           new MockOperationRunner(`${name} (success with warnings)`, async (terminal: CollatedTerminal) => {

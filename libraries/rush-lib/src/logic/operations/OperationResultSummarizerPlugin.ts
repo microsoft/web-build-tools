@@ -244,7 +244,7 @@ function writeDetailedSummary(
     const leftPartLength: number = 4 + subheadingText.length + 1;
 
     // rightPart: " 5.07 seconds ]--"
-    const stopwatch =
+    const stopwatch: IStopwatchResult =
       operationMetadataManager?.tryRestoreStopwatch(operationResult.stopwatch) ?? operationResult.stopwatch;
     const time: string = stopwatch.toString();
     const rightPartLength: number = 1 + time.length + 1 + 3;
