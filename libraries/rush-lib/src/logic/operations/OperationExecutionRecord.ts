@@ -320,19 +320,18 @@ export class OperationExecutionRecord implements IOperationRunnerContext, IOpera
             ? OperationStatus.NoOp
             : OperationStatus.Skipped;
       }
-      this.stopwatch.stop();
       // Delegate global state reporting
       await onResult(this);
     } catch (error) {
       this.status = OperationStatus.Failure;
       this.error = error;
-      this.stopwatch.stop();
       // Delegate global state reporting
       await onResult(this);
     } finally {
       if (this.isTerminal) {
         this._collatedWriter?.close();
         this.stdioSummarizer.close();
+        this.stopwatch.stop();
       }
     }
   }

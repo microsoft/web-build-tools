@@ -57,7 +57,6 @@ import { FlagFile } from '../../api/FlagFile';
 import { WeightedOperationPlugin } from '../../logic/operations/WeightedOperationPlugin';
 import { getVariantAsync, VARIANT_PARAMETER } from '../../api/Variants';
 import { Selection } from '../../logic/Selection';
-import type { IOperationStateJson } from '../../logic/operations/OperationStateFile';
 
 /**
  * Constructor parameters for PhasedScriptAction.
@@ -808,7 +807,7 @@ export class PhasedScriptAction extends BaseScriptAction<IPhasedCommandConfig> {
       executionManagerOptions
     );
 
-    const { isInitial, isWatch, cobuildConfiguration } = options.executeOperationsContext;
+    const { isInitial, isWatch } = options.executeOperationsContext;
 
     let success: boolean = false;
     let result: IExecutionResult | undefined;
