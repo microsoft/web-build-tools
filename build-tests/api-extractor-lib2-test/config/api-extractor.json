@@ -14,7 +14,10 @@
   },
 
   "dtsRollup": {
-    "enabled": true
+    "enabled": true,
+    "alphaTrimmedFilePath": "<projectFolder>/dist/<unscopedPackageName>-alpha.d.ts",
+    "publicTrimmedFilePath": "<projectFolder>/dist/<unscopedPackageName>-public.d.ts",
+    "untrimmedFilePath": "<projectFolder>/dist/<unscopedPackageName>-internal.d.ts"
   },
 
   "testMode": true

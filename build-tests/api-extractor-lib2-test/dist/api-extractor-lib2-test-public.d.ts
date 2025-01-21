@@ -7,18 +7,13 @@
  * @packageDocumentation
  */
 
-/** @public */
-declare class DefaultClass {
-}
-export default DefaultClass;
+/* Excluded from this release type: DefaultClass */
 
 /** @public */
 export declare class Lib2Class {
     prop: number;
 }
 
-/** @alpha */
-export declare interface Lib2Interface {
-}
+/* Excluded from this release type: Lib2Interface */
 
 export { }

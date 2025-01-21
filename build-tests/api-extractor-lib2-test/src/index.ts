@@ -18,5 +18,6 @@ export class Lib2Class {
 /** @alpha */
 export interface Lib2Interface {}
 
-/** @public */
-export default class DefaultClass {}
+/** @beta */
+export class DefaultClass {}
+export default DefaultClass;
