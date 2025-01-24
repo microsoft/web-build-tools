@@ -1,0 +1,53 @@
+variables:
+  - name: FORCE_COLOR
+    value: 1
+  - name: SourceBranch
+    value: $[ replace(replace(resources.repositories.self.ref, 'refs/heads/', ''), 'refs/pull/', 'refs/remotes/pull/') ]
+
+resources:
+  repositories:
+    - repository: 1esPipelines
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1esPipelines
+  parameters:
+    pool:
+      name: Azure-Pipelines-1ESPT-ExDShared
+      os: windows
+    stages:
+      - stage:
+        jobs:
+          - job:
+            pool:
+              name: publish-rushstack-tarballs
+              os: linux
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  targetPath: $(Build.ArtifactStagingDirectory)/published-versions
+                  artifactName: published-versions
+                - output: pipelineArtifact
+                  targetPath: $(Build.ArtifactStagingDirectory)/packages
+                  artifactName: packages
+            steps:
+              - checkout: self
+                persistCredentials: true
+
+              - template: /common/config/azure-pipelines/templates/install-node.yaml@self
+
+              - template: /common/config/azure-pipelines/templates/build.yaml@self
+
+              - template: /common/config/azure-pipelines/templates/bump-versions.yaml@self
+                parameters:
+                  VersionPolicyName: noRush
+                  BranchName: $(SourceBranch)
+
+              - script: 'node libraries/rush-lib/scripts/plugins-prepublish.js'
+                displayName: 'Prepublish workaround for rush-lib'
+
+              - template: /common/config/azure-pipelines/templates/publish-tarballs.yaml@self
+
+              - template: /common/config/azure-pipelines/templates/record-published-versions.yaml@self
