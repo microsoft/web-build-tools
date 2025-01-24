@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Fix an issue where moving dependencies from `dependencies` to `devDependencies` in a project's `package.json` did not trigger an lockfile update.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

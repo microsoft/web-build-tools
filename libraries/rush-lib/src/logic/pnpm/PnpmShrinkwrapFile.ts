@@ -1090,9 +1090,9 @@ export class PnpmShrinkwrapFile extends BaseShrinkwrapFile {
             }
             // If fall through, there is a chance the package declares an inconsistent version, ignore it.
             isDevDepFallThrough = true;
+            break;
           }
 
-          // eslint-disable-next-line no-fallthrough
           case DependencyType.Regular:
             specifierFromLockfile = importer.dependencies?.[name];
             importerDependencies.delete(name);
