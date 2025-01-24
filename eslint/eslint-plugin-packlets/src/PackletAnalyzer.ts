@@ -225,11 +225,24 @@ export class PackletAnalyzer {
         } else {
           // No.  If we are not part of the same packlet, then the module path must refer
           // to the index.ts entry point.
+          
+          const importedPathParts = importedPath.split(/[\/\\]+/);
+          const lastPart = Path_1.Path.parse(importedPathParts[importedPathParts.length - 1]).name;
+          let pathToCompare;
+          if (lastPart.toUpperCase() === 'INDEX') {
+              // Example:
+              //   importedPath = /path/to/my-project/src/other-packlet/index
+              //   pathToCompare = /path/to/my-project/src/other-packlet
+              pathToCompare = Path_1.Path.dirname(importedPath);
+          }
+          else {
+              pathToCompare = importedPath;
+          }
 
           // Example: /path/to/my-project/src/other-packlet
           const entryPointPath: string = Path.join(this.packletsFolderPath, importedPackletName);
 
-          if (!Path.isEqual(importedPath, entryPointPath)) {
+          if (!Path.isEqual(pathToCompare, entryPointPath)) {
             // Example: "../packlets/other-packlet"
             const entryPointModulePath: string = Path.convertToSlashes(
               Path.relative(inputFileFolder, entryPointPath)
