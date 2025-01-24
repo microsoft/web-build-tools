@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": " Modify rush scan, support executing projects under rush and custom scanning folders.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

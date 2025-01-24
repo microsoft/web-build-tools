@@ -1,0 +1,17 @@
+{
+  "npmVersion": "6.4.1",
+  "rushVersion": "5.5.2",
+  "projectFolderMinDepth": 1,
+  "projectFolderMaxDepth": 99,
+
+  "projects": [
+    {
+      "packageName": "a",
+      "projectFolder": "a"
+    },
+    {
+      "packageName": "b",
+      "projectFolder": "b"
+    }
+  ]
+}
