@@ -895,6 +895,7 @@ export class MarkdownDocumenter {
     if (parametersTable.rows.length > 0) {
       output.appendNode(new DocHeading({ configuration, title: 'Parameters' }));
       output.appendNode(parametersTable);
+      output.appendNode(new DocParagraph({ configuration }));
     }
 
     if (ApiReturnTypeMixin.isBaseClassOf(apiParameterListMixin)) {
