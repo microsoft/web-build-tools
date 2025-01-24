@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Fix an issue in pnpm9, where a subspace is empty, the rush install fails",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}
