@@ -588,11 +588,11 @@ export class YamlDocumenter {
         }
         yamlItem.inheritance = this._renderInheritance(uid, apiItem.extendsTypes);
       }
+    }
 
-      const typeParameters: IYamlParameter[] = this._populateYamlTypeParameters(uid, apiItem);
-      if (typeParameters.length) {
-        yamlItem.syntax = { typeParameters };
-      }
+    const typeParameters: IYamlParameter[] = this._populateYamlTypeParameters(uid, apiItem);
+    if (typeParameters.length) {
+      yamlItem.syntax = { typeParameters };
     }
 
     if (apiItem.tsdocComment) {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/api-documenter",
+      "comment": "Populate Yaml type parameters for classes",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@microsoft/api-documenter"
+}
