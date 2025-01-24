@@ -1,0 +1,7 @@
+{
+  "extends": "./api-extractor-base.json",
+
+  "apiReport": {
+    "reportVariants": ["complete"]
+  }
+}
