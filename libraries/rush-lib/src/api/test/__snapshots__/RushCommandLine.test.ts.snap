@@ -1091,7 +1091,7 @@ Object {
           "shortName": undefined,
         },
         Object {
-          "description": "Overrides the bump type in the version-policy.json for the specified version policy. Valid BUMPTYPE values include: prerelease, patch, preminor, minor, major. This setting only works for lock-step version policy in bump action.",
+          "description": "Overrides the bump type in the version-policy.json for the specified version policy. Valid BUMPTYPE values include: prerelease, prepatch, patch, preminor, minor, premajor and major. This setting only works for lock-step version policy in bump action.",
           "environmentVariable": undefined,
           "kind": "String",
           "longName": "--override-bump",

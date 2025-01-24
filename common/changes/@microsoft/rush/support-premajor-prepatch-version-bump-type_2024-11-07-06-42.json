@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Add support for `premajor` and `prepatch` bump types in lockstep versions.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

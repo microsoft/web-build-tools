@@ -9,13 +9,20 @@ import { VersionPolicy, LockStepVersionPolicy, IndividualVersionPolicy, BumpType
 describe(VersionPolicy.name, () => {
   describe(LockStepVersionPolicy.name, () => {
     const filename: string = `${__dirname}/jsonFiles/rushWithLockVersion.json`;
-    const versionPolicyConfig: VersionPolicyConfiguration = new VersionPolicyConfiguration(filename);
+    let versionPolicyConfig: VersionPolicyConfiguration;
     let versionPolicy1: VersionPolicy;
     let versionPolicy2: VersionPolicy;
+    let versionPolicy3: VersionPolicy;
+    let versionPolicy4: VersionPolicy;
+    let versionPolicy5: VersionPolicy;
 
     beforeEach(() => {
+      versionPolicyConfig = new VersionPolicyConfiguration(filename);
       versionPolicy1 = versionPolicyConfig.getVersionPolicy('testPolicy1');
       versionPolicy2 = versionPolicyConfig.getVersionPolicy('testPolicy2');
+      versionPolicy3 = versionPolicyConfig.getVersionPolicy('testPolicy3');
+      versionPolicy4 = versionPolicyConfig.getVersionPolicy('testPolicy4');
+      versionPolicy5 = versionPolicyConfig.getVersionPolicy('testPolicy5');
     });
 
     it('loads configuration.', () => {
@@ -90,12 +97,55 @@ describe(VersionPolicy.name, () => {
       expect(lockStepVersionPolicy.nextBump).toEqual(undefined);
     });
 
+    it('bumps version for premajor release', () => {
+      expect(versionPolicy1).toBeInstanceOf(LockStepVersionPolicy);
+      const lockStepVersionPolicy: LockStepVersionPolicy = versionPolicy1 as LockStepVersionPolicy;
+      lockStepVersionPolicy.bump(BumpType.premajor, 'pr');
+      expect(lockStepVersionPolicy.version).toEqual('2.0.0-pr.0');
+      expect(lockStepVersionPolicy.nextBump).toEqual(BumpType.patch);
+    });
+
+    it('patch gets rid of prerelease version made with premajor', () => {
+      expect(versionPolicy3).toBeInstanceOf(LockStepVersionPolicy);
+      const lockStepVersionPolicy: LockStepVersionPolicy = versionPolicy3 as LockStepVersionPolicy;
+      expect(lockStepVersionPolicy.nextBump).toEqual(undefined);
+      lockStepVersionPolicy.bump(BumpType.patch);
+      expect(lockStepVersionPolicy.version).toEqual('1.0.0');
+      expect(lockStepVersionPolicy.nextBump).toEqual(undefined);
+    });
+
     it('bumps version for preminor release', () => {
       expect(versionPolicy1).toBeInstanceOf(LockStepVersionPolicy);
       const lockStepVersionPolicy: LockStepVersionPolicy = versionPolicy1 as LockStepVersionPolicy;
       lockStepVersionPolicy.bump(BumpType.preminor, 'pr');
       expect(lockStepVersionPolicy.version).toEqual('1.2.0-pr.0');
       expect(lockStepVersionPolicy.nextBump).toEqual(BumpType.patch);
+    });
+
+    it('patch gets rid of prerelease version made with preminor', () => {
+      expect(versionPolicy4).toBeInstanceOf(LockStepVersionPolicy);
+      const lockStepVersionPolicy: LockStepVersionPolicy = versionPolicy4 as LockStepVersionPolicy;
+      expect(lockStepVersionPolicy.nextBump).toEqual(undefined);
+      lockStepVersionPolicy.bump(BumpType.patch);
+      expect(lockStepVersionPolicy.version).toEqual('1.1.0');
+      expect(lockStepVersionPolicy.nextBump).toEqual(undefined);
+    });
+
+    it('bumps version for prepatch release', () => {
+      expect(versionPolicy1).toBeInstanceOf(LockStepVersionPolicy);
+      const lockStepVersionPolicy: LockStepVersionPolicy = versionPolicy1 as LockStepVersionPolicy;
+      lockStepVersionPolicy.bump(BumpType.prepatch, 'pr');
+      expect(lockStepVersionPolicy.version).toEqual('1.1.1-pr.0');
+      expect(lockStepVersionPolicy.nextBump).toEqual(BumpType.patch);
+    });
+
+    it('patch gets rid of prepatch version made with preminor', () => {
+      expect(versionPolicy5).toBeInstanceOf(LockStepVersionPolicy);
+      const lockStepVersionPolicy: LockStepVersionPolicy = versionPolicy5 as LockStepVersionPolicy;
+      expect(lockStepVersionPolicy.nextBump).toEqual(undefined);
+      lockStepVersionPolicy.bump(BumpType.patch);
+      expect(lockStepVersionPolicy.version).toEqual('1.1.1');
+      expect(lockStepVersionPolicy.nextBump).toEqual(undefined);
     });
 
     it('bumps version for minor release', () => {

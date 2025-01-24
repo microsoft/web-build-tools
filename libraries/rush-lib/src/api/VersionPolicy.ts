@@ -25,8 +25,6 @@ import { cloneDeep } from '../utilities/objectUtilities';
  * This is a copy of the semver ReleaseType enum, but with the `none` value added and
  * the `premajor` and `prepatch` omitted.
  * See {@link LockStepVersionPolicy._getReleaseType}.
- *
- * TODO: Consider supporting `premajor` and `prepatch` in the future.
  */
 export enum BumpType {
   // No version bump
@@ -40,7 +38,11 @@ export enum BumpType {
   // Minor version bump
   'minor' = 4,
   // Major version bump
-  'major' = 5
+  'major' = 5,
+  // Premajor version bump
+  'premajor' = 6,
+  // Prepatch version bump
+  'prepatch' = 7
 }
 
 /**

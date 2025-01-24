@@ -9,5 +9,20 @@
     "policyName": "testPolicy2",
     "definitionName": "lockStepVersion",
     "version": "1.2.0"
+  },
+  {
+    "policyName": "testPolicy3",
+    "definitionName": "lockStepVersion",
+    "version": "1.0.0-pr.0"
+  },
+  {
+    "policyName": "testPolicy4",
+    "definitionName": "lockStepVersion",
+    "version": "1.1.0-pr.0"
+  },
+  {
+    "policyName": "testPolicy5",
+    "definitionName": "lockStepVersion",
+    "version": "1.1.1-pr.0"
   }
 ]

@@ -75,7 +75,7 @@ export class VersionAction extends BaseRushAction {
       argumentName: 'BUMPTYPE',
       description:
         'Overrides the bump type in the version-policy.json for the specified version policy. ' +
-        'Valid BUMPTYPE values include: prerelease, patch, preminor, minor, major. ' +
+        'Valid BUMPTYPE values include: prerelease, prepatch, patch, preminor, minor, premajor and major. ' +
         'This setting only works for lock-step version policy in bump action.'
     });
     this._prereleaseIdentifier = this.defineStringParameter({
@@ -202,7 +202,7 @@ export class VersionAction extends BaseRushAction {
     if (this._overwriteBump.value && !Enum.tryGetValueByKey(BumpType, this._overwriteBump.value)) {
       throw new Error(
         'The value of override-bump is not valid.  ' +
-          'Valid values include prerelease, patch, preminor, minor, and major'
+          'Valid values include prerelease, prepatch, patch, preminor, minor, premajor and major'
       );
     }
   }

@@ -87,7 +87,11 @@ export enum BumpType {
     // (undocumented)
     'patch' = 2,
     // (undocumented)
+    'premajor' = 6,
+    // (undocumented)
     'preminor' = 3,
+    // (undocumented)
+    'prepatch' = 7,
     // (undocumented)
     'prerelease' = 1
 }

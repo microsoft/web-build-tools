@@ -68,7 +68,7 @@
         },
         "nextBump": {
           "description": "Type of next version bump",
-          "enum": ["none", "prerelease", "preminor", "minor", "patch", "major"]
+          "enum": ["none", "prerelease", "prepatch", "preminor", "premajor", "minor", "patch", "major"]
         },
         "mainProject": {
           "description": "The main project for this version policy",
