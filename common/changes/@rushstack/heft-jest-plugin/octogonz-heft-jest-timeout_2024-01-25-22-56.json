@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/heft-jest-plugin",
+      "comment": "Increase default \"testTimeout\" to 15s in jest-shared.config.json",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@rushstack/heft-jest-plugin"
+}

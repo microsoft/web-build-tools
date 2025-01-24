@@ -15,6 +15,13 @@
   // We suggest this setting for any heft project (in a monorepo or not).
   "clearMocks": true,
 
+  // This setting specifies the default maximum time limit for each Jest test, measured in milliseconds.
+  // Jest's default is 5000 (5 seconds) because unit tests should not perform long-running operations,
+  // and they should never intentionally delay the build by waiting for clock events or sleep() APIs.
+  // This limit is increased for Heft to accommodate situations where a virtual machine is under heavy load
+  // due to many projects building in parallel; in that situation timeouts unnecessarily decrease stability.
+  "testTimeout": 15000,
+
   // "Adding '<rootDir>/lib' here enables lib/__mocks__ to be used for mocking Node.js system modules
   "roots": ["<rootDir>/lib"],
 
