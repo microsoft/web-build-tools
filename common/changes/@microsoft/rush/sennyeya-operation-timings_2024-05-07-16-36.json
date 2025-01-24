@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Operations that were cobuilt now have the cobuild time correctly reflected across all agents.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

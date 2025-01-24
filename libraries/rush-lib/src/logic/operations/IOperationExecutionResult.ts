@@ -45,10 +45,6 @@ export interface IOperationExecutionResult {
    */
   readonly nonCachedDurationMs: number | undefined;
   /**
-   * The id of the runner which actually runs the building process in cobuild mode.
-   */
-  readonly cobuildRunnerId: string | undefined;
-  /**
    * The relative path to the folder that contains operation metadata. This folder will be automatically included in cache entries.
    */
   readonly metadataFolderPath: string | undefined;

@@ -581,7 +581,6 @@ export interface _INpmOptionsJson extends IPackageManagerOptionsJsonBase {
 
 // @alpha
 export interface IOperationExecutionResult {
-    readonly cobuildRunnerId: string | undefined;
     readonly error: Error | undefined;
     readonly logFilePaths: ILogFilePaths | undefined;
     readonly metadataFolderPath: string | undefined;
@@ -955,11 +954,17 @@ export class _OperationMetadataManager {
     // (undocumented)
     readonly stateFile: _OperationStateFile;
     // (undocumented)
-    tryRestoreAsync({ terminal, terminalProvider, errorLogPath }: {
+    tryRestoreAsync({ terminal, terminalProvider, errorLogPath, cobuildContextId, cobuildRunnerId }: {
         terminalProvider: ITerminalProvider;
         terminal: ITerminal;
         errorLogPath: string;
+        cobuildContextId?: string;
+        cobuildRunnerId?: string;
     }): Promise<void>;
+    // (undocumented)
+    tryRestoreStopwatch(originalStopwatch: IStopwatchResult): IStopwatchResult;
+    // (undocumented)
+    wasCobuilt: boolean;
 }
 
 // @internal

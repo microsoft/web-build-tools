@@ -1,5 +1,357 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`OperationExecutionManager Cobuild logging logs cobuilt operations correctly with --timeline option 1`] = `
+Array [
+  Object {
+    "kind": "O",
+    "text": "Selected 2 operations:
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  operation (success)
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  operation2 (success)
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "Executing a maximum of 1 simultaneous processes...
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+[gray]==[[default] [cyan]operation2 (success)[default] [gray]]=========================================[[default] [white]1 of 2[default] [gray]]==[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[green]\\"operation2 (success)\\" completed successfully in 15.00 seconds.[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+[gray]==[[default] [cyan]operation (success)[default] [gray]]==========================================[[default] [white]2 of 2[default] [gray]]==[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[green]\\"operation (success)\\" completed successfully in 15.00 seconds.[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "==========================================================================================
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[cyan]operation2 (success)[default] [gray][default][green]CCCCCCCCCCCCCCCCCCCCCCCCCCC[default][gray]------------------------------------[default] [white]15.0s[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[cyan] operation (success)[default] [gray]-----------------------------------[default][green]CCCCCCCCCCCCCCCCCCCCCCCCCCCC[default][gray][default] [white]15.0s[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "==========================================================================================
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "LEGEND:                                                                  Total Work: 20.0s
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  [#] Success  [!] Failed/warnings  [%] Skipped/cached/no-op             Wall Clock: 35.0s
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  [C] Cobuild                                                      Max Parallelism Used: 1
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "                                                                 Avg Parallelism Used: 0.6
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "BY PHASE:
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  [cyan]         my-name[default] 30.0s, from cache: 20.0s
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+
+
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[gray]==[[default] [green]SUCCESS: 2 operations[default] [gray]]====================================================[default]
+
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "These operations completed successfully:
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  operation (success)     15.00 seconds (restore 10000.0ms)
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  operation2 (success)    15.00 seconds (restore 10000.0ms)
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+]
+`;
+
+exports[`OperationExecutionManager Cobuild logging logs warnings correctly with --timeline option 1`] = `
+Array [
+  Object {
+    "kind": "O",
+    "text": "Selected 2 operations:
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  operation (success with warnings)
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  operation2 (success with warnings)
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "Executing a maximum of 1 simultaneous processes...
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+[gray]==[[default] [cyan]operation2 (success with warnings)[default] [gray]]===========================[[default] [white]1 of 2[default] [gray]]==[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "Build step 1
+
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "Warning: step 1 succeeded with warnings
+
+",
+  },
+  Object {
+    "kind": "E",
+    "text": "[yellow]\\"operation2 (success with warnings)\\" completed with warnings in 15.00 seconds.[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+[gray]==[[default] [cyan]operation (success with warnings)[default] [gray]]============================[[default] [white]2 of 2[default] [gray]]==[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "Build step 1
+
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "Warning: step 1 succeeded with warnings
+
+",
+  },
+  Object {
+    "kind": "E",
+    "text": "[yellow]\\"operation (success with warnings)\\" completed with warnings in 15.00 seconds.[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "==========================================================================================
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[cyan]operation2 (success with warnings)[default] [gray][default][yellow]CCCCCCCCCCCCCCCCCCCCC[default][gray]----------------------------[default] [white]15.0s[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[cyan] operation (success with warnings)[default] [gray]---------------------------[default][yellow]CCCCCCCCCCCCCCCCCCCCCC[default][gray][default] [white]15.0s[default]
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "==========================================================================================
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "LEGEND:                                                                  Total Work: 20.0s
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  [#] Success  [!] Failed/warnings  [%] Skipped/cached/no-op             Wall Clock: 35.0s
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  [C] Cobuild                                                      Max Parallelism Used: 1
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "                                                                 Avg Parallelism Used: 0.6
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "BY PHASE:
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "  [cyan]         my-name[default] 30.0s, from cache: 20.0s
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+
+
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[gray]==[[default] [yellow]SUCCESS WITH WARNINGS: 2 operations[default] [gray]]======================================[default]
+
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[gray]--[[default] [yellow]WARNING: operation (success with warnings)[default] [gray]]------------[[default] [white]15.00 seconds[default] [gray]]--[default]
+
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "[gray]--[[default] [yellow]WARNING: operation2 (success with warnings)[default] [gray]]-----------[[default] [white]15.00 seconds[default] [gray]]--[default]
+
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "O",
+    "text": "
+",
+  },
+  Object {
+    "kind": "E",
+    "text": "[yellow]Operations succeeded with warnings.
+[default]
+",
+  },
+]
+`;
+
 exports[`OperationExecutionManager Error logging printedStderrAfterError 1`] = `
 Array [
   Object {
@@ -241,7 +593,7 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (failure)[default] [gray]]---------------[[default] [white]0.20 seconds[default] [gray]]--[default]
+    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (failure)[default] [gray]]---------------[[default] [white]0.10 seconds[default] [gray]]--[default]
 
 ",
   },
@@ -329,7 +681,7 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (success)[default] [gray]]---------------[[default] [white]0.20 seconds[default] [gray]]--[default]
+    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (success)[default] [gray]]---------------[[default] [white]0.10 seconds[default] [gray]]--[default]
 
 ",
   },
@@ -408,7 +760,7 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "[cyan]success with warnings (success)[default] [gray][default][yellow]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!![default][gray][default] [white]0.2s[default]
+    "text": "[cyan]success with warnings (success)[default] [gray][default][yellow]!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!![default][gray][default] [white]0.1s[default]
 ",
   },
   Object {
@@ -418,12 +770,12 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "LEGEND:                                                                   Total Work: 0.2s
+    "text": "LEGEND:                                                                   Total Work: 0.1s
 ",
   },
   Object {
     "kind": "O",
-    "text": "  [#] Success  [!] Failed/warnings  [%] Skipped/cached/no-op              Wall Clock: 0.2s
+    "text": "  [#] Success  [!] Failed/warnings  [%] Skipped/cached/no-op              Wall Clock: 0.1s
 ",
   },
   Object {
@@ -456,7 +808,7 @@ Array [
   },
   Object {
     "kind": "O",
-    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (success)[default] [gray]]---------------[[default] [white]0.20 seconds[default] [gray]]--[default]
+    "text": "[gray]--[[default] [yellow]WARNING: success with warnings (success)[default] [gray]]---------------[[default] [white]0.10 seconds[default] [gray]]--[default]
 
 ",
   },
