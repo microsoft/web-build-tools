@@ -487,7 +487,7 @@ export class Extractor {
     extractorConfig: ExtractorConfig,
     messageRouter: MessageRouter
   ): void {
-    messageRouter.logInfo(
+    messageRouter.logVerbose(
       ConsoleMessageId.Preamble,
       `Analysis will use the bundled TypeScript version ${ts.version}`
     );
