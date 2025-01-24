@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Support cloud build cache providers performing reads and writes directly to the file system, rather than forcing an in-memory copy of the archive. This is intended to reduce memory usage of the Rush process.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

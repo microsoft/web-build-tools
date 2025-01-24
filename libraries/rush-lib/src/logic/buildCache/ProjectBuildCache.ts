@@ -137,32 +137,69 @@ export class ProjectBuildCache {
 
     let localCacheEntryPath: string | undefined =
       await this._localBuildCacheProvider.tryGetCacheEntryPathByIdAsync(terminal, cacheId);
-    let cacheEntryBuffer: Buffer | undefined;
     let updateLocalCacheSuccess: boolean | undefined;
     if (!localCacheEntryPath && this._cloudBuildCacheProvider) {
       terminal.writeVerboseLine(
         'This project was not found in the local build cache. Querying the cloud build cache.'
       );
 
-      cacheEntryBuffer = await this._cloudBuildCacheProvider.tryGetCacheEntryBufferByIdAsync(
-        terminal,
-        cacheId
-      );
-      if (cacheEntryBuffer) {
-        try {
-          localCacheEntryPath = await this._localBuildCacheProvider.trySetCacheEntryBufferAsync(
-            terminal,
-            cacheId,
-            cacheEntryBuffer
-          );
-          updateLocalCacheSuccess = true;
-        } catch (e) {
-          updateLocalCacheSuccess = false;
+      if (this._cloudBuildCacheProvider.tryGetCacheEntryFileByIdAsync) {
+        const finalLocalCacheEntryPath: string = this._localBuildCacheProvider.getCacheEntryPath(cacheId);
+
+        // Derive the temp file from the destination path to ensure they are on the same volume
+        // In the case of a shared network drive containing the build cache, we also need to make
+        // sure the the temp path won't be shared by two parallel rush builds.
+        const randomSuffix: string = crypto.randomBytes(8).toString('hex');
+        const tempLocalCacheEntryPath: string = `${finalLocalCacheEntryPath}-${randomSuffix}.temp`;
+
+        updateLocalCacheSuccess = await this._cloudBuildCacheProvider.tryGetCacheEntryFileByIdAsync(
+          terminal,
+          cacheId,
+          tempLocalCacheEntryPath
+        );
+
+        if (updateLocalCacheSuccess) {
+          // Move after the download is finished so that if the process is interrupted we aren't left with an invalid file
+          try {
+            await Async.runWithRetriesAsync({
+              action: () =>
+                FileSystem.moveAsync({
+                  sourcePath: tempLocalCacheEntryPath,
+                  destinationPath: finalLocalCacheEntryPath,
+                  overwrite: true
+                }),
+              maxRetries: 2,
+              retryDelayMs: 500
+            });
+          } catch (moveError) {
+            try {
+              await FileSystem.deleteFileAsync(tempLocalCacheEntryPath);
+            } catch (deleteError) {
+              // Ignored
+            }
+            throw moveError;
+          }
+          localCacheEntryPath = finalLocalCacheEntryPath;
+        }
+      } else {
+        const cacheEntryBuffer: Buffer | undefined =
+          await this._cloudBuildCacheProvider.tryGetCacheEntryBufferByIdAsync(terminal, cacheId);
+        if (cacheEntryBuffer) {
+          try {
+            localCacheEntryPath = await this._localBuildCacheProvider.trySetCacheEntryBufferAsync(
+              terminal,
+              cacheId,
+              cacheEntryBuffer
+            );
+            updateLocalCacheSuccess = true;
+          } catch (e) {
+            updateLocalCacheSuccess = false;
+          }
         }
       }
     }
 
-    if (!localCacheEntryPath && !cacheEntryBuffer) {
+    if (!localCacheEntryPath) {
       terminal.writeVerboseLine('This project was not found in the build cache.');
       return false;
     }
@@ -285,8 +322,6 @@ export class ProjectBuildCache {
       return false;
     }
 
-    let cacheEntryBuffer: Buffer | undefined;
-
     let setCloudCacheEntryPromise: Promise<boolean> | undefined;
 
     // Note that "writeAllowed" settings (whether in config or environment) always apply to
@@ -295,19 +330,30 @@ export class ProjectBuildCache {
 
     if (this._cloudBuildCacheProvider?.isCacheWriteAllowed) {
       if (localCacheEntryPath) {
-        cacheEntryBuffer = await FileSystem.readFileToBufferAsync(localCacheEntryPath);
+        if (this._cloudBuildCacheProvider.trySetCacheEntryFileAsync) {
+          // Upload directly from the file. Preferred to keep memory usage down in the face of large projects.
+          setCloudCacheEntryPromise = this._cloudBuildCacheProvider.trySetCacheEntryFileAsync(
+            terminal,
+            cacheId,
+            localCacheEntryPath
+          );
+        } else {
+          const cacheEntryBuffer: Buffer = await FileSystem.readFileToBufferAsync(localCacheEntryPath);
+
+          setCloudCacheEntryPromise = this._cloudBuildCacheProvider?.trySetCacheEntryBufferAsync(
+            terminal,
+            cacheId,
+            cacheEntryBuffer
+          );
+        }
       } else {
         throw new InternalError('Expected the local cache entry path to be set.');
       }
-
-      setCloudCacheEntryPromise = this._cloudBuildCacheProvider?.trySetCacheEntryBufferAsync(
-        terminal,
-        cacheId,
-        cacheEntryBuffer
-      );
     }
 
-    const updateCloudCacheSuccess: boolean | undefined = (await setCloudCacheEntryPromise) ?? true;
+    const updateCloudCacheSuccess: boolean | undefined = setCloudCacheEntryPromise
+      ? await setCloudCacheEntryPromise
+      : true;
 
     const success: boolean = updateCloudCacheSuccess && !!localCacheEntryPath;
     if (success) {

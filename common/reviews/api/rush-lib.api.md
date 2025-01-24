@@ -348,8 +348,10 @@ export interface ICloudBuildCacheProvider {
     readonly isCacheWriteAllowed: boolean;
     // (undocumented)
     tryGetCacheEntryBufferByIdAsync(terminal: ITerminal, cacheId: string): Promise<Buffer | undefined>;
+    tryGetCacheEntryFileByIdAsync?(terminal: ITerminal, cacheId: string, filePath: string): Promise<boolean>;
     // (undocumented)
     trySetCacheEntryBufferAsync(terminal: ITerminal, cacheId: string, entryBuffer: Buffer): Promise<boolean>;
+    trySetCacheEntryFileAsync?(terminal: ITerminal, cacheId: string, filePath: string): Promise<boolean>;
     // (undocumented)
     updateCachedCredentialAsync(terminal: ITerminal, credential: string): Promise<void>;
     // (undocumented)

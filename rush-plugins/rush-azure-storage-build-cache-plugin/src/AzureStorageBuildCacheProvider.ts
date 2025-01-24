@@ -38,6 +38,8 @@ interface IBlobError extends Error {
   };
 }
 
+type BlobUploadCommonResponse = Awaited<ReturnType<BlockBlobClient['uploadFile']>>;
+
 export class AzureStorageBuildCacheProvider
   extends AzureStorageAuthentication
   implements ICloudBuildCacheProvider
@@ -77,56 +79,73 @@ export class AzureStorageBuildCacheProvider
     const blobClient: BlobClient = await this._getBlobClientForCacheIdAsync(cacheId, terminal);
 
     try {
-      const blobExists: boolean = await blobClient.exists();
-      if (blobExists) {
-        return await blobClient.downloadToBuffer();
-      } else {
-        return undefined;
-      }
+      return await blobClient.downloadToBuffer();
     } catch (err) {
-      const e: IBlobError = err as IBlobError;
-      const errorMessage: string =
-        'Error getting cache entry from Azure Storage: ' +
-        [e.name, e.message, e.response?.status, e.response?.parsedHeaders?.errorCode]
-          .filter((piece: string | undefined) => piece)
-          .join(' ');
+      this._handleAzureError(err as IBlobError, terminal);
+    }
+  }
 
-      if (e.response?.parsedHeaders?.errorCode === 'PublicAccessNotPermitted') {
-        // This error means we tried to read the cache with no credentials, but credentials are required.
-        // We'll assume that the configuration of the cache is correct and the user has to take action.
-        terminal.writeWarningLine(
-          `${errorMessage}\n\n` +
-            `You need to configure Azure Storage SAS credentials to access the build cache.\n` +
-            `Update the credentials by running "rush ${RushConstants.updateCloudCredentialsCommandName}", \n` +
-            `or provide a SAS in the ` +
-            `${EnvironmentVariableNames.RUSH_BUILD_CACHE_CREDENTIAL} environment variable.`
-        );
-      } else if (e.response?.parsedHeaders?.errorCode === 'AuthenticationFailed') {
-        // This error means the user's credentials are incorrect, but not expired normally. They might have
-        // gotten corrupted somehow, or revoked manually in Azure Portal.
-        terminal.writeWarningLine(
-          `${errorMessage}\n\n` +
-            `Your Azure Storage SAS credentials are not valid.\n` +
-            `Update the credentials by running "rush ${RushConstants.updateCloudCredentialsCommandName}", \n` +
-            `or provide a SAS in the ` +
-            `${EnvironmentVariableNames.RUSH_BUILD_CACHE_CREDENTIAL} environment variable.`
-        );
-      } else if (e.response?.parsedHeaders?.errorCode === 'AuthorizationPermissionMismatch') {
-        // This error is not solvable by the user, so we'll assume it is a configuration error, and revert
-        // to providing likely next steps on configuration. (Hopefully this error is rare for a regular
-        // developer, more likely this error will appear while someone is configuring the cache for the
-        // first time.)
-        terminal.writeWarningLine(
-          `${errorMessage}\n\n` +
-            `Your Azure Storage SAS credentials are valid, but do not have permission to read the build cache.\n` +
-            `Make sure you have added the role 'Storage Blob Data Reader' to the appropriate user(s) or group(s)\n` +
-            `on your storage account in the Azure Portal.`
-        );
-      } else {
-        // We don't know what went wrong, hopefully we'll print something useful.
-        terminal.writeWarningLine(errorMessage);
-      }
-      return undefined;
+  public async tryGetCacheEntryFileByIdAsync(
+    terminal: ITerminal,
+    cacheId: string,
+    filePath: string
+  ): Promise<boolean> {
+    const blobClient: BlobClient = await this._getBlobClientForCacheIdAsync(cacheId, terminal);
+
+    try {
+      await blobClient.downloadToFile(filePath, undefined, undefined, {
+        maxRetryRequests: 10
+      });
+      return true;
+    } catch (err) {
+      this._handleAzureError(err as IBlobError, terminal);
+      return false;
+    }
+  }
+
+  private _handleAzureError(err: IBlobError, terminal: ITerminal): void {
+    const errorMessage: string =
+      'Error getting cache entry from Azure Storage: ' +
+      [err.name, err.message, err.response?.status, err.response?.parsedHeaders?.errorCode]
+        .filter((piece: string | undefined) => piece)
+        .join(' ');
+
+    if (err.response?.parsedHeaders?.errorCode === 'PublicAccessNotPermitted') {
+      // This error means we tried to read the cache with no credentials, but credentials are required.
+      // We'll assume that the configuration of the cache is correct and the user has to take action.
+      terminal.writeWarningLine(
+        `${errorMessage}\n\n` +
+          `You need to configure Azure Storage SAS credentials to access the build cache.\n` +
+          `Update the credentials by running "rush ${RushConstants.updateCloudCredentialsCommandName}", \n` +
+          `or provide a SAS in the ` +
+          `${EnvironmentVariableNames.RUSH_BUILD_CACHE_CREDENTIAL} environment variable.`
+      );
+    } else if (err.response?.parsedHeaders?.errorCode === 'AuthenticationFailed') {
+      // This error means the user's credentials are incorrect, but not expired normally. They might have
+      // gotten corrupted somehow, or revoked manually in Azure Portal.
+      terminal.writeWarningLine(
+        `${errorMessage}\n\n` +
+          `Your Azure Storage SAS credentials are not valid.\n` +
+          `Update the credentials by running "rush ${RushConstants.updateCloudCredentialsCommandName}", \n` +
+          `or provide a SAS in the ` +
+          `${EnvironmentVariableNames.RUSH_BUILD_CACHE_CREDENTIAL} environment variable.`
+      );
+    } else if (err.response?.parsedHeaders?.errorCode === 'AuthorizationPermissionMismatch') {
+      // This error is not solvable by the user, so we'll assume it is a configuration error, and revert
+      // to providing likely next steps on configuration. (Hopefully this error is rare for a regular
+      // developer, more likely this error will appear while someone is configuring the cache for the
+      // first time.)
+      terminal.writeWarningLine(
+        `${errorMessage}\n\n` +
+          `Your Azure Storage SAS credentials are valid, but do not have permission to read the build cache.\n` +
+          `Make sure you have added the role 'Storage Blob Data Reader' to the appropriate user(s) or group(s)\n` +
+          `on your storage account in the Azure Portal.`
+      );
+    } else if (err.statusCode === 404) {
+      // Expected
+    } else {
+      // We don't know what went wrong, hopefully we'll print something useful.
+      terminal.writeWarningLine(errorMessage);
     }
   }
 
@@ -134,6 +153,34 @@ export class AzureStorageBuildCacheProvider
     terminal: ITerminal,
     cacheId: string,
     entryStream: Buffer
+  ): Promise<boolean> {
+    return this._trySetCacheEntryAsync(terminal, cacheId, (blockBlobClient: BlockBlobClient) => {
+      return blockBlobClient.uploadData(entryStream, {
+        conditions: {
+          ifNoneMatch: '*'
+        }
+      });
+    });
+  }
+
+  public async trySetCacheEntryFileAsync(
+    terminal: ITerminal,
+    cacheId: string,
+    cacheFilePath: string
+  ): Promise<boolean> {
+    return this._trySetCacheEntryAsync(terminal, cacheId, (blockBlobClient: BlockBlobClient) => {
+      return blockBlobClient.uploadFile(cacheFilePath, {
+        conditions: {
+          ifNoneMatch: '*'
+        }
+      });
+    });
+  }
+
+  public async _trySetCacheEntryAsync(
+    terminal: ITerminal,
+    cacheId: string,
+    uploadFunction: (blockBlobClient: BlockBlobClient) => Promise<BlobUploadCommonResponse>
   ): Promise<boolean> {
     if (!this.isCacheWriteAllowed) {
       terminal.writeErrorLine(
@@ -144,47 +191,24 @@ export class AzureStorageBuildCacheProvider
 
     const blobClient: BlobClient = await this._getBlobClientForCacheIdAsync(cacheId, terminal);
     const blockBlobClient: BlockBlobClient = blobClient.getBlockBlobClient();
-    let blobAlreadyExists: boolean = false;
 
     try {
-      blobAlreadyExists = await blockBlobClient.exists();
-    } catch (err) {
-      const e: IBlobError = err as IBlobError;
-
-      // If RUSH_BUILD_CACHE_CREDENTIAL is set but is corrupted or has been rotated
-      // in Azure Portal, or the user's own cached credentials have been corrupted or
-      // invalidated, we'll print the error and continue (this way we don't fail the
-      // actual rush build).
-      const errorMessage: string =
-        'Error checking if cache entry exists in Azure Storage: ' +
-        [e.name, e.message, e.response?.status, e.response?.parsedHeaders?.errorCode]
-          .filter((piece: string | undefined) => piece)
-          .join(' ');
-
-      terminal.writeWarningLine(errorMessage);
-    }
-
-    if (blobAlreadyExists) {
-      terminal.writeVerboseLine('Build cache entry blob already exists.');
-      return true;
-    } else {
-      try {
-        await blockBlobClient.upload(entryStream, entryStream.length);
+      const response: BlobUploadCommonResponse = await uploadFunction(blockBlobClient);
+      const status: number = response._response.status;
+      return (status >= 200 && status < 300) || status === 409;
+    } catch (e) {
+      if ((e as IBlobError).statusCode === 409 /* conflict */) {
+        // If something else has written to the blob at the same time,
+        // it's probably a concurrent process that is attempting to write
+        // the same cache entry. That is an effective success.
+        terminal.writeVerboseLine(
+          'Azure Storage returned status 409 (conflict). The cache entry has ' +
+            `probably already been set by another builder. Code: "${(e as IBlobError).code}".`
+        );
         return true;
-      } catch (e) {
-        if ((e as IBlobError).statusCode === 409 /* conflict */) {
-          // If something else has written to the blob at the same time,
-          // it's probably a concurrent process that is attempting to write
-          // the same cache entry. That is an effective success.
-          terminal.writeVerboseLine(
-            'Azure Storage returned status 409 (conflict). The cache entry has ' +
-              `probably already been set by another builder. Code: "${(e as IBlobError).code}".`
-          );
-          return true;
-        } else {
-          terminal.writeWarningLine(`Error uploading cache entry to Azure Storage: ${e}`);
-          return false;
-        }
+      } else {
+        terminal.writeWarningLine(`Error uploading cache entry to Azure Storage: ${e}`);
+        return false;
       }
     }
   }
