@@ -167,6 +167,11 @@ export interface IModuleMinifierPluginOptions {
    * Set to `false` for faster builds at the expense of debuggability.
    */
   sourceMap?: boolean;
+
+  /**
+   * Instructs the plugin to alter the code of async import statements to compress better and be portable across compilations.
+   */
+  compressAsyncImports?: boolean;
 }
 
 /**

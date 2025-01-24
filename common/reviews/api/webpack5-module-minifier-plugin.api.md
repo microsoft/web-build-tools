@@ -74,6 +74,7 @@ export interface IModuleMinifierPluginHooks {
 
 // @public
 export interface IModuleMinifierPluginOptions {
+    compressAsyncImports?: boolean;
     minifier: IModuleMinifier;
     sourceMap?: boolean;
 }

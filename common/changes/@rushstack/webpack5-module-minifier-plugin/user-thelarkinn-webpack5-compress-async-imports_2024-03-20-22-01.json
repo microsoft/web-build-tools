@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/webpack5-module-minifier-plugin",
+      "comment": "Port compressAsyncImports feature into current plugin from the webpack4 module minifier plugin.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@rushstack/webpack5-module-minifier-plugin"
+}

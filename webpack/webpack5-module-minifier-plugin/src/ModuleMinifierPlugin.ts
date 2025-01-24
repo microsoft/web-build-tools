@@ -44,8 +44,10 @@ import type {
   IModuleMinifierPluginStats as IModuleMinifierPluginStats,
   IAssetStats
 } from './ModuleMinifierPlugin.types';
+
 import { generateLicenseFileForAsset } from './GenerateLicenseFileForAsset';
 import { rehydrateAsset } from './RehydrateAsset';
+import { AsyncImportCompressionPlugin } from './AsyncImportCompressionPlugin';
 
 // The name of the plugin, for use in taps
 const PLUGIN_NAME: 'ModuleMinifierPlugin' = 'ModuleMinifierPlugin';
@@ -145,7 +147,7 @@ export class ModuleMinifierPlugin implements WebpackPluginInstance {
       postProcessCodeFragment: new SyncWaterfallHook(['code', 'context'])
     };
 
-    const { minifier, sourceMap } = options;
+    const { minifier, sourceMap, compressAsyncImports = false } = options;
 
     this._optionsForHash = {
       ...options,
@@ -154,6 +156,10 @@ export class ModuleMinifierPlugin implements WebpackPluginInstance {
     };
 
     this._enhancers = [];
+
+    if (compressAsyncImports) {
+      this._enhancers.push(new AsyncImportCompressionPlugin(this.hooks));
+    }
 
     this.hooks.rehydrateAssets.tap(PLUGIN_NAME, defaultRehydrateAssets);
     this.minifier = minifier;
