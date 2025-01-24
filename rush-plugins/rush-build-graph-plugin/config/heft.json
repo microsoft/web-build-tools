@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/heft/v0/heft.schema.json",
+
+  "extends": "local-node-rig/profiles/default/config/heft.json",
+
+  "phasesByName": {
+    "build": {
+      "tasksByName": {
+        "copy-rush-build-graph-plugin": {
+          "taskDependencies": ["typescript"],
+          "taskPlugin": {
+            "pluginPackage": "@rushstack/heft",
+            "pluginName": "copy-files-plugin",
+            "options": {
+              "copyOperations": [
+                {
+                  "sourcePath": "lib",
+                  "destinationFolders": [
+                    "rushBuildGraphPluginTestRepo/common/autoinstallers/plugins/node_modules/@rushstack/rush-build-graph-plugin/lib"
+                  ],
+                  "fileExtensions": [".json", ".js", ".map"],
+                  "hardlink": true
+                },
+                {
+                  "sourcePath": ".",
+                  "includeGlobs": ["rush-plugin-manifest.json"],
+                  "destinationFolders": [
+                    "rushBuildGraphPluginTestRepo/common/autoinstallers/plugins/node_modules/@rushstack/rush-build-graph-plugin/"
+                  ]
+                },
+                {
+                  "sourcePath": "rushBuildGraphPluginTestRepo/node_modules_mock/",
+                  "destinationFolders": [
+                    "rushBuildGraphPluginTestRepo/common/autoinstallers/plugins/node_modules/"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

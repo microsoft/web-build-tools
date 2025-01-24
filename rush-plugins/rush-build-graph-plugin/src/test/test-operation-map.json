@@ -1,0 +1,50 @@
+{
+  "OperationMap": [
+    {
+      "dependencies": [],
+      "runner": {
+        "name": "a (build)",
+        "_commandToRun": "heft run fake build command "
+      },
+      "associatedPhase": {
+        "name": "_phase:build",
+        "dependencies": {}
+      },
+      "associatedProject": {
+        "packageName": "a",
+        "projectFolder": "/workspaces/rushstack/rush-plugins/rush-build-graph-plugin/rushBuildGraphPluginTestRepo/a"
+      }
+    },
+    {
+      "dependencies": [
+        {
+          "runner": {
+            "name": "a (build)",
+            "_commandToRun": "heft run fake build command "
+          },
+          "associatedPhase": {
+            "name": "_phase:build",
+            "dependencies": {}
+          },
+          "associatedProject": {
+            "packageName": "a",
+            "projectFolder": "/workspaces/rushstack/rush-plugins/rush-build-graph-plugin/rushBuildGraphPluginTestRepo/a"
+          }
+        }
+      ],
+      "runner": {
+        "name": "b (build)",
+        "_commandToRun": "heft run fake build command "
+      },
+      "associatedPhase": {
+        "name": "_phase:build",
+        "dependencies": {}
+      },
+      "associatedProject": {
+        "packageName": "b",
+        "projectFolder": "/workspaces/rushstack/rush-plugins/rush-build-graph-plugin/rushBuildGraphPluginTestRepo/b"
+      }
+    }
+  ],
+  "ICreateOperationsContext": {}
+}

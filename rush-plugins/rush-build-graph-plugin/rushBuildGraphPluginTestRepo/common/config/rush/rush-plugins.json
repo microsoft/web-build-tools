@@ -1,0 +1,10 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush-plugins.schema.json",
+  "plugins": [
+    {
+      "packageName": "@rushstack/rush-build-graph-plugin",
+      "pluginName": "@rushstack/rush-build-graph-plugin",
+      "autoinstallerName": "plugins"
+    }
+  ]
+}

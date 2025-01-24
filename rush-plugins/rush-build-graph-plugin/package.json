@@ -1,0 +1,33 @@
+{
+  "name": "@rushstack/rush-build-graph-plugin",
+  "version": "0.1.0",
+  "description": "Plugin for providing access to Rush build graph.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/microsoft/rushstack",
+    "directory": "rush-plugins/rush-build-graph-plugin"
+  },
+  "homepage": "https://rushjs.io",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "heft build --clean",
+    "test": "heft test --clean",
+    "clean": "heft clean",
+    "start": "heft build --clean --watch",
+    "test-watch": "heft test-watch",
+    "_phase:build": "heft run --only build -- --clean",
+    "_phase:test": "heft run --only test -- --clean"
+  },
+  "devDependencies": {
+    "@rushstack/heft": "workspace:*",
+    "@rushstack/node-core-library": "workspace:*",
+    "@rushstack/rush-sdk": "workspace:*",
+    "@rushstack/terminal": "workspace:*",
+    "local-node-rig": "workspace:*",
+    "@microsoft/rush-lib": "workspace:*",
+    "eslint": "~8.57.0"
+  },
+  "sideEffects": false
+}

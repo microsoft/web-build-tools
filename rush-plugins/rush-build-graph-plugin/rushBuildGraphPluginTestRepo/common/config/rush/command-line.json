@@ -1,0 +1,70 @@
+/**
+ * This configuration file defines custom commands for the "rush" command-line.
+ * More documentation is available on the Rush website: https://rushjs.io
+ */
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/command-line.schema.json",
+
+  /**
+   * Custom "commands" introduce new verbs for the command-line.  To see the help for these
+   * example commands, try "rush --help", "rush my-bulk-command --help", or
+   * "rush my-global-command --help".
+   */
+  "commands": [
+    {
+      "commandKind": "phased",
+      "name": "build",
+      "summary": "run build phases",
+      "enableParallelism": false,
+      "phases": ["_phase:build"],
+      "watchOptions": {
+        "alwaysWatch": false,
+        "watchPhases": ["_phase:build"]
+      }
+    },
+    {
+      "commandKind": "phased",
+      "name": "test",
+      "summary": "run build and test phases",
+      "enableParallelism": false,
+      "phases": ["_phase:build", "_phase:test"],
+      "watchOptions": {
+        "alwaysWatch": false,
+        "watchPhases": ["_phase:build", "_phase:test"]
+      }
+    }
+  ],
+
+  "phases": [
+    {
+      "name": "_phase:build",
+      "dependencies": {
+        "upstream": ["_phase:build"]
+      },
+      // Enforcing this script exists is handled via static validation pipeline
+      "missingScriptBehavior": "silent"
+    },
+    {
+      "name": "_phase:test",
+      "dependencies": {
+        "self": ["_phase:build"]
+      },
+      // Enforcing this script exists is handled via static validation pipeline
+      "missingScriptBehavior": "silent"
+    }
+  ],
+
+  /**
+   * Custom "parameters" introduce new parameters for specified Rush command-line commands.
+   * For example, you might define a "--production" parameter for the "rush build" command.
+   */
+  "parameters": [
+    {
+      "longName": "--drop-graph",
+      "parameterKind": "string",
+      "description": "Drops the build graph to the specified file",
+      "argumentName": "FILE_PATH",
+      "associatedCommands": ["build", "test"]
+    }
+  ]
+}

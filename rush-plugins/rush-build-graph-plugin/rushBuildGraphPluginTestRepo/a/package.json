@@ -1,0 +1,8 @@
+{
+  "name": "package-a",
+  "version": "1.0.0",
+  "description": "Test package a",
+  "scripts": {
+    "_phase:build": "heft run build command"
+  }
+}

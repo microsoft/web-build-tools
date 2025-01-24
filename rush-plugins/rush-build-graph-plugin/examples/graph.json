@@ -1,0 +1,31 @@
+{
+  "nodes": [
+    {
+      "id": "package-a#_phase:build",
+      "task": "_phase:build",
+      "package": "package-a",
+      "dependencies": [],
+      "workingDirectory": "a",
+      "command": "heft run build command "
+    },
+    {
+      "id": "package-b#_phase:build",
+      "task": "_phase:build",
+      "package": "package-b",
+      "dependencies": ["package-a#_phase:build"],
+      "workingDirectory": "b",
+      "command": "heft run a different build command "
+    },
+    {
+      "id": "package-b#_phase:test",
+      "task": "_phase:test",
+      "package": "package-b",
+      "dependencies": ["package-b#_phase:build"],
+      "workingDirectory": "b",
+      "command": "heft run a test command "
+    }
+  ],
+  "repoSettings": {
+    "commonTempFolder": "common/temp"
+  }
+}

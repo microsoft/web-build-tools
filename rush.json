@@ -1238,6 +1238,12 @@
       "versionPolicyName": "rush"
     },
     {
+      "packageName": "@rushstack/rush-build-graph-plugin",
+      "projectFolder": "rush-plugins/rush-build-graph-plugin",
+      "reviewCategory": "libraries",
+      "versionPolicyName": "rush"
+    },
+    {
       "packageName": "@rushstack/rush-azure-storage-build-cache-plugin",
       "projectFolder": "rush-plugins/rush-azure-storage-build-cache-plugin",
       "reviewCategory": "libraries",

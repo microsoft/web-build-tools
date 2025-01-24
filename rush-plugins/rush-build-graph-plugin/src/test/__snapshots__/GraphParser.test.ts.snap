@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`--drop-graph integration process Should produce consistent output graph 1`] = `
+Array [
+  Object {
+    "command": "heft run build command ",
+    "dependencies": Array [],
+    "id": "package-a#_phase:build",
+    "package": "package-a",
+    "task": "_phase:build",
+    "workingDirectory": "a",
+  },
+  Object {
+    "command": "heft run a different build command ",
+    "dependencies": Array [
+      "package-a#_phase:build",
+    ],
+    "id": "package-b#_phase:build",
+    "package": "package-b",
+    "task": "_phase:build",
+    "workingDirectory": "b",
+  },
+  Object {
+    "command": "heft run a test command ",
+    "dependencies": Array [
+      "package-b#_phase:build",
+    ],
+    "id": "package-b#_phase:test",
+    "package": "package-b",
+    "task": "_phase:test",
+    "workingDirectory": "b",
+  },
+]
+`;
+
+exports[`GraphParser should fail if isNoOp mismatches a command 1`] = `"a#_phase:build: Operation runner isNoOp does not match _commandToRun existence"`;
+
+exports[`GraphParser should fail if the input schema is invalid 1`] = `
+"Operation does not have a name: {
+  \\"incorrectPhase\\": {
+    \\"name\\": \\"incorrectPhase\\"
+  },
+  \\"incorrectProject\\": {
+    \\"packageName\\": \\"incorrectProject\\"
+  }
+}"
+`;

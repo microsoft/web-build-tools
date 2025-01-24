@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Introduce the `@rushstack/rush-build-graph-plugin` plugin.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}
