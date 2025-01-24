@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Add support for overriding rush with custom installation path through RUSH_OVERRIDE_PATH environment variable",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

@@ -37,6 +37,11 @@ export const EnvironmentVariableNames = {
   RUSH_PREVIEW_VERSION: 'RUSH_PREVIEW_VERSION',
 
   /**
+   * This variable overrides the path of Rush that will used by the version selector.
+   */
+  RUSH_OVERRIDE_PATH: 'RUSH_OVERRIDE_PATH',
+
+  /**
    * If this variable is set to "1", Rush will not fail the build when running a version
    * of Node that does not match the criteria specified in the "nodeSupportedVersionRange"
    * field from rush.json.
@@ -541,6 +546,7 @@ export class EnvironmentConfiguration {
 
           case EnvironmentVariableNames.RUSH_PARALLELISM:
           case EnvironmentVariableNames.RUSH_PREVIEW_VERSION:
+          case EnvironmentVariableNames.RUSH_OVERRIDE_PATH:
           case EnvironmentVariableNames.RUSH_VARIANT:
           case EnvironmentVariableNames.RUSH_DEPLOY_TARGET_FOLDER:
             // Handled by @microsoft/rush front end
