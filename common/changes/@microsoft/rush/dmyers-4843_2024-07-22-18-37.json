@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Fix an issue where peer dependencies are incorrectly installed when the `autoInstallPeers` is set to `false` and workspaces are disabled.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

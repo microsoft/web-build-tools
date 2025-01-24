@@ -212,6 +212,13 @@ export class RushInstallManager extends BaseInstallManager {
             tempPackageJson.optionalDependencies = {};
           }
           tempPackageJson.optionalDependencies[dependency.name] = dependency.version;
+        } else if (dependency.dependencyType === DependencyType.Peer) {
+          if (
+            this.rushConfiguration.packageManager !== 'pnpm' ||
+            this.rushConfiguration.pnpmOptions.autoInstallPeers === true
+          ) {
+            tempDependencies.set(dependency.name, dependency.version);
+          }
         } else {
           tempDependencies.set(dependency.name, dependency.version);
         }
