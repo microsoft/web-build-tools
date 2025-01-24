@@ -210,6 +210,13 @@ export class PnpmOptionsConfiguration extends PackageManagerOptionsConfiguration
   public readonly pnpmStorePath: string;
 
   /**
+   * The path for PNPM to use as the virtual store directory.
+   *
+   * Will be overridden by environment variable RUSH_PNPM_VIRTUAL_STORE_PATH
+   */
+  public readonly pnpmVirtualStorePath: string;
+
+  /**
    * If true, then Rush will add the "--strict-peer-dependencies" option when invoking PNPM.
    *
    * @remarks
@@ -409,6 +416,11 @@ export class PnpmOptionsConfiguration extends PackageManagerOptionsConfiguration
       this.pnpmStorePath = '';
     } else {
       this.pnpmStorePath = `${commonTempFolder}/pnpm-store`;
+    }
+    if (EnvironmentConfiguration.pnpmVirtualStorePathOverride) {
+      this.pnpmVirtualStorePath = EnvironmentConfiguration.pnpmVirtualStorePathOverride;
+    } else {
+      this.pnpmVirtualStorePath = `${commonTempFolder}/.pnpm`;
     }
     this.strictPeerDependencies = !!json.strictPeerDependencies;
     this.preventManualShrinkwrapChanges = !!json.preventManualShrinkwrapChanges;

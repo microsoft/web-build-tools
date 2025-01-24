@@ -41,6 +41,10 @@ export interface ILastInstallFlagJson {
    */
   storePath?: string;
   /**
+   * Same with pnpmOptions.pnpmVirtualStorePath in rush.json
+   */
+  virtualStorePath?: string;
+  /**
    * An experimental flag used by cleanInstallAfterNpmrcChanges
    */
   npmrcHash?: string;
@@ -205,6 +209,7 @@ export function getCommonTempFlag(
 
   if (currentState.packageManager === 'pnpm' && rushConfiguration.pnpmOptions) {
     currentState.storePath = rushConfiguration.pnpmOptions.pnpmStorePath;
+    currentState.virtualStorePath = rushConfiguration.pnpmOptions.pnpmVirtualStorePath;
     if (rushConfiguration.pnpmOptions.useWorkspaces) {
       currentState.workspaces = rushConfiguration.pnpmOptions.useWorkspaces;
     }

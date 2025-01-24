@@ -852,6 +852,11 @@ ${gitLfsHookHandling}
         }
       }
 
+      // This will be overridden by RUSH_PNPM_VIRTUAL_STORE_PATH
+      if (EnvironmentConfiguration.pnpmVirtualStorePathOverride) {
+        args.push('--virtual-store-dir', this.rushConfiguration.pnpmOptions.pnpmVirtualStorePath);
+      }
+
       const { pnpmVerifyStoreIntegrity } = EnvironmentConfiguration;
       if (pnpmVerifyStoreIntegrity !== undefined) {
         args.push(`--verify-store-integrity`, `${pnpmVerifyStoreIntegrity}`);

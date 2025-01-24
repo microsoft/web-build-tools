@@ -25,7 +25,8 @@ export const EnvironmentVariableNames = {
    * The default value is "common/temp" under the repository root.
    *
    * @remarks This environment variable is not compatible with workspace installs. If attempting
-   * to move the PNPM store path, see the `RUSH_PNPM_STORE_PATH` environment variable.
+   * to move the PNPM store or virtual store paths, see the `RUSH_PNPM_STORE_PATH` and
+   * `RUSH_PNPM_VIRTUAL_STORE_PATH` environment variables, respectively.
    */
   RUSH_TEMP_FOLDER: 'RUSH_TEMP_FOLDER',
 
@@ -79,6 +80,15 @@ export const EnvironmentVariableNames = {
    * current working directory.  An absolute path is recommended.
    */
   RUSH_PNPM_STORE_PATH: 'RUSH_PNPM_STORE_PATH',
+
+  /**
+   * When using PNPM as the package manager, this variable can be used to configure the path that
+   * PNPM will use as the virtual store directory.
+   *
+   * If a relative path is used, then the virtual store path will be resolved relative to the process's
+   * current working directory.  An absolute path is recommended.
+   */
+  RUSH_PNPM_VIRTUAL_STORE_PATH: 'RUSH_PNPM_VIRTUAL_STORE_PATH',
 
   /**
    * When using PNPM as the package manager, this variable can be used to control whether or not PNPM
@@ -240,6 +250,8 @@ export class EnvironmentConfiguration {
 
   private static _pnpmStorePathOverride: string | undefined;
 
+  private static _pnpmVirtualStorePathOverride: string | undefined;
+
   private static _pnpmVerifyStoreIntegrity: boolean | undefined;
 
   private static _rushGlobalFolderOverride: string | undefined;
@@ -300,12 +312,21 @@ export class EnvironmentConfiguration {
   }
 
   /**
-   * An override for the PNPM store path, if `pnpmStore` configuration is set to 'path'
+   * An override for the PNPM store path.
    * See {@link EnvironmentVariableNames.RUSH_PNPM_STORE_PATH}
    */
   public static get pnpmStorePathOverride(): string | undefined {
     EnvironmentConfiguration._ensureValidated();
     return EnvironmentConfiguration._pnpmStorePathOverride;
+  }
+
+  /**
+   * An override for the PNPM virtual store path.
+   * See {@link EnvironmentVariableNames.RUSH_PNPM_VIRTUAL_STORE_PATH}
+   */
+  public static get pnpmVirtualStorePathOverride(): string | undefined {
+    EnvironmentConfiguration._ensureValidated();
+    return EnvironmentConfiguration._pnpmVirtualStorePathOverride;
   }
 
   /**
@@ -470,6 +491,14 @@ export class EnvironmentConfiguration {
 
           case EnvironmentVariableNames.RUSH_PNPM_STORE_PATH: {
             EnvironmentConfiguration._pnpmStorePathOverride =
+              value && !options.doNotNormalizePaths
+                ? EnvironmentConfiguration._normalizeDeepestParentFolderPath(value) || value
+                : value;
+            break;
+          }
+
+          case EnvironmentVariableNames.RUSH_PNPM_VIRTUAL_STORE_PATH: {
+            EnvironmentConfiguration._pnpmVirtualStorePathOverride =
               value && !options.doNotNormalizePaths
                 ? EnvironmentConfiguration._normalizeDeepestParentFolderPath(value) || value
                 : value;

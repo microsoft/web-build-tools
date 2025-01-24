@@ -95,7 +95,7 @@
       "type": "object",
       "properties": {
         "pnpmStore": {
-          "description": "Specifies the location of the PNPM store.  There are two possible values:\n\n\"local\" - use the \"pnpm-store\" folder in the current configured temp folder: \"common/temp/pnpm-store\" by default.\n\"global\" - use PNPM's global store, which has the benefit of being shared across multiple repo folders, but the disadvantage of less isolation for builds (e.g. bugs or incompatibilities when two repos use different releases of PNPM)\n\nIn all cases, the store path will be overridden by the environment variable RUSH_PNPM_STORE_PATH.\n\nThe default value is \"local\".",
+          "description": "Specifies the location of the PNPM store.  There are two possible values:\n\n\"local\" - use the \"pnpm-store\" folder in the current configured temp folder: \"common/temp/pnpm-store\" by default.\n\"global\" - use PNPM's global store, which has the benefit of being shared across multiple repo folders, but the disadvantage of less isolation for builds (e.g. bugs or incompatibilities when two repos use different releases of PNPM)\n\nIn all cases, the store path and the virtual store path will be overridden by the environment variables RUSH_PNPM_STORE_PATH and RUSH_PNPM_VIRTUAL_STORE_PATH, respectively.\n\nThe default value is \"local\".",
           "type": "string",
           "enum": ["local", "global"]
         },

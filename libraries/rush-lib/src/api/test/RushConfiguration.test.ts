@@ -64,6 +64,11 @@ describe(RushConfiguration.name, () => {
       './repo/common/temp/pnpm-store'
     );
     assertPathProperty(
+      'pnpmVirtualStorePath',
+      rushConfiguration.pnpmOptions.pnpmVirtualStorePath,
+      './repo/common/temp/.pnpm'
+    );
+    assertPathProperty(
       'packageManagerToolFilename',
       rushConfiguration.packageManagerToolFilename,
       './repo/common/temp/npm-local/node_modules/.bin/npm'
@@ -135,6 +140,11 @@ describe(RushConfiguration.name, () => {
       'pnpmStorePath',
       rushConfiguration.pnpmOptions.pnpmStorePath,
       './repo/common/temp/pnpm-store'
+    );
+    assertPathProperty(
+      'pnpmVirtualStorePath',
+      rushConfiguration.pnpmOptions.pnpmVirtualStorePath,
+      './repo/common/temp/.pnpm'
     );
     assertPathProperty(
       'packageManagerToolFilename',
@@ -213,6 +223,11 @@ describe(RushConfiguration.name, () => {
       path.join(expectedValue, 'pnpm-store')
     );
     assertPathProperty(
+      'pnpmVirtualStorePath',
+      rushConfiguration.pnpmOptions.pnpmVirtualStorePath,
+      path.join(expectedValue, '.pnpm')
+    );
+    assertPathProperty(
       'packageManagerToolFilename',
       rushConfiguration.packageManagerToolFilename,
       `${expectedValue}/pnpm-local/node_modules/.bin/pnpm`
@@ -227,15 +242,18 @@ describe(RushConfiguration.name, () => {
   describe('PNPM Store Paths', () => {
     afterEach(() => {
       EnvironmentConfiguration['_pnpmStorePathOverride'] = undefined;
+      EnvironmentConfiguration['_pnpmVirtualStorePathOverride'] = undefined;
     });
 
     const PNPM_STORE_PATH_ENV: string = 'RUSH_PNPM_STORE_PATH';
+    const PNPM_VIRTUAL_STORE_PATH_ENV: string = 'RUSH_PNPM_VIRTUAL_STORE_PATH';
 
     describe('Loading repo/rush-pnpm-local.json', () => {
       const RUSH_JSON_FILENAME: string = path.resolve(__dirname, 'repo', 'rush-pnpm-local.json');
 
       it(`loads the correct path when pnpmStore = "local"`, () => {
         const EXPECT_STORE_PATH: string = path.resolve(__dirname, 'repo', 'common', 'temp', 'pnpm-store');
+        const EXPECT_VIRTUAL_STORE_PATH: string = path.resolve(__dirname, 'repo', 'common', 'temp', '.pnpm');
         const rushConfiguration: RushConfiguration =
           RushConfiguration.loadFromConfigurationFile(RUSH_JSON_FILENAME);
 
@@ -245,9 +263,13 @@ describe(RushConfiguration.name, () => {
           Path.convertToSlashes(EXPECT_STORE_PATH)
         );
         expect(path.isAbsolute(rushConfiguration.pnpmOptions.pnpmStorePath)).toEqual(true);
+        expect(Path.convertToSlashes(rushConfiguration.pnpmOptions.pnpmVirtualStorePath)).toEqual(
+          Path.convertToSlashes(EXPECT_VIRTUAL_STORE_PATH)
+        );
+        expect(path.isAbsolute(rushConfiguration.pnpmOptions.pnpmVirtualStorePath)).toEqual(true);
       });
 
-      it('loads the correct path when environment variable is defined', () => {
+      it('loads the correct store path when environment variable is defined', () => {
         const EXPECT_STORE_PATH: string = path.resolve('/var/temp');
         process.env[PNPM_STORE_PATH_ENV] = EXPECT_STORE_PATH;
 
@@ -258,6 +280,19 @@ describe(RushConfiguration.name, () => {
         expect(rushConfiguration.pnpmOptions.pnpmStore).toEqual('local');
         expect(rushConfiguration.pnpmOptions.pnpmStorePath).toEqual(EXPECT_STORE_PATH);
         expect(path.isAbsolute(rushConfiguration.pnpmOptions.pnpmStorePath)).toEqual(true);
+      });
+
+      it('loads the correct virtual store path when environment variable is defined', () => {
+        const EXPECT_VIRTUAL_STORE_PATH: string = path.resolve('/var/temp');
+        process.env[PNPM_VIRTUAL_STORE_PATH_ENV] = EXPECT_VIRTUAL_STORE_PATH;
+
+        const rushConfiguration: RushConfiguration =
+          RushConfiguration.loadFromConfigurationFile(RUSH_JSON_FILENAME);
+
+        expect(rushConfiguration.packageManager).toEqual('pnpm');
+        expect(rushConfiguration.pnpmOptions.pnpmStore).toEqual('local');
+        expect(rushConfiguration.pnpmOptions.pnpmVirtualStorePath).toEqual(EXPECT_VIRTUAL_STORE_PATH);
+        expect(path.isAbsolute(rushConfiguration.pnpmOptions.pnpmVirtualStorePath)).toEqual(true);
       });
     });
 
@@ -284,6 +319,18 @@ describe(RushConfiguration.name, () => {
         expect(rushConfiguration.packageManager).toEqual('pnpm');
         expect(rushConfiguration.pnpmOptions.pnpmStore).toEqual('global');
         expect(rushConfiguration.pnpmOptions.pnpmStorePath).toEqual(EXPECT_STORE_PATH);
+      });
+
+      it('loads the correct virtual store path when environment variable is defined', () => {
+        const EXPECT_STORE_PATH: string = path.resolve('/var/temp');
+        process.env[PNPM_VIRTUAL_STORE_PATH_ENV] = EXPECT_STORE_PATH;
+
+        const rushConfiguration: RushConfiguration =
+          RushConfiguration.loadFromConfigurationFile(RUSH_JSON_FILENAME);
+
+        expect(rushConfiguration.packageManager).toEqual('pnpm');
+        expect(rushConfiguration.pnpmOptions.pnpmStore).toEqual('global');
+        expect(rushConfiguration.pnpmOptions.pnpmVirtualStorePath).toEqual(EXPECT_STORE_PATH);
       });
     });
 
