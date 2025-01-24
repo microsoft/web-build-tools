@@ -17,6 +17,7 @@ Positional arguments:
   <command>
     add                 Adds one or more dependencies to the package.json and 
                         runs rush update.
+    analyze-telemetry   Analyzes the Rush Project based on a telemetry file.
     change              Records changes made to projects, indicating how the 
                         package version number should be bumped for the next 
                         publish.
@@ -146,6 +147,28 @@ Optional arguments:
                         Temporarily suspend the specified alert for one week
   --forever             Combined with \\"--snooze\\", causes that alert to be 
                         suspended permanently
+"
+`;
+
+exports[`CommandLineHelp prints the help for each action: analyze-telemetry 1`] = `
+"usage: rush analyze-telemetry [-h] [-b] [--simulate] --file FILE
+
+Analyzes the provided telemetry file to provide insight into the build timing 
+data. The \\"--build-times\\" flag will identify the projects which are 
+chokepoints during the build. Reducing the build times of these projects will 
+directly reduce the overall build time by 1 second. The --simulate flag will 
+identify the optimal number of CPU cores to build your project to help teams 
+make more informed decisions about the number of CPU cores to use to build 
+their project.
+
+Optional arguments:
+  -h, --help         Show this help message and exit.
+  -b, --build-times  print build timing analysis by project
+  --simulate         Simulate the build with different number of CPU cores 
+                     and find the optimal number of CPU cores.
+  --file FILE        The name of the telemetry file for dependency analysis 
+                     to utilize. The telemetry file should exist in the rush 
+                     telemetry folder
 "
 `;
 

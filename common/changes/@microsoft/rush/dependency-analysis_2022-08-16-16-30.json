@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Implemented `rush analyze-telemetry to have 2 functions, --build-times and --simulate to analyze telemetry files",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}
