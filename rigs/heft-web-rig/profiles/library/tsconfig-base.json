@@ -24,7 +24,7 @@
     "typeRoots": ["../../../../../node_modules/@types", "../../node_modules/@types"],
 
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "Node16",
     "target": "es5",
     "lib": ["es5", "scripthost", "es2015.collection", "es2015.promise", "es2015.iterable", "dom"],
 

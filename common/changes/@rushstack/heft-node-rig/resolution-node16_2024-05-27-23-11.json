@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/heft-node-rig",
+      "comment": "Update the `\"module\"` `compilerOption` to `\"Node16\"` for compatibility with the `\"moduleResolution\": \"Node16\"` `compilerOption`.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@rushstack/heft-node-rig"
+}

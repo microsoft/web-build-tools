@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/heft-node-rig",
+      "comment": "Update the `\"moduleResolution\"` TSConfig `compilerOption` to `\"Node16\"` to add support for the `\"exports\"` `pacakge.json` field.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@rushstack/heft-node-rig"
+}

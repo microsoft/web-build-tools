@@ -21,7 +21,8 @@
     "types": ["heft-jest"],
     "typeRoots": ["../../../../../node_modules/@types", "../../node_modules/@types"],
 
-    "module": "commonjs",
+    "module": "Node16",
+    "moduleResolution": "Node16",
     "target": "es2017",
     "lib": ["es2017"],
 
