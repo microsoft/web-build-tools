@@ -18,6 +18,11 @@ export class RushConstants {
   public static readonly rushJsonFilename: 'rush.json' = 'rush.json';
 
   /**
+   * The filename ("rush-projects.json") for the root-level projects configuration file.
+   */
+  public static readonly rushProjectsFilename: 'rush-projects.json' = 'rush-projects.json';
+
+  /**
    * The filename ("browser-approved-packages.json") for an optional policy configuration file
    * that stores a list of NPM packages that have been approved for usage by Rush projects.
    * This is part of a pair of config files, one for projects that run in a web browser

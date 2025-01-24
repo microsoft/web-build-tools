@@ -1262,6 +1262,10 @@ export class RushConfiguration {
     //
     // @internal (undocumented)
     readonly _rushPluginsConfiguration: RushPluginsConfiguration;
+    // Warning: (ae-forgotten-export) The symbol "IRushProjectsJson" needs to be exported by the entry point index.d.ts
+    //
+    // @internal
+    readonly _rushProjectsJson: IRushProjectsJson | undefined;
     readonly shrinkwrapFilename: string;
     get shrinkwrapFilePhrase(): string;
     // @beta
@@ -1387,6 +1391,7 @@ export class RushConstants {
     static readonly rushPluginManifestFilename: 'rush-plugin-manifest.json';
     static readonly rushPluginsConfigFilename: 'rush-plugins.json';
     static readonly rushProjectConfigFilename: 'rush-project.json';
+    static readonly rushProjectsFilename: 'rush-projects.json';
     static readonly rushRecyclerFolderName: 'rush-recycler';
     static readonly rushTempFolderName: 'temp';
     static readonly rushTempNpmScope: '@rush-temp';

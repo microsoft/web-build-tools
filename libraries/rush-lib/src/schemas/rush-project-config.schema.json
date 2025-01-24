@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Project list managed by rush.",
+  "description": "A list of projects managed by rush.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "packageName": {
+        "description": "The NPM package name of the project.",
+        "type": "string"
+      },
+      "projectFolder": {
+        "description": "The path to the project folder relative to the Rush config file.",
+        "type": "string"
+      },
+      "reviewCategory": {
+        "description": "An optional category for usage in the \"browser-approved-packages.json\" and \"nonbrowser-approved-packages.json\" files.  Only strings from reviewCategories are allowed here.",
+        "type": "string"
+      },
+      "cyclicDependencyProjects": {
+        "description": "(Deprecated) This field was renamed to \"decoupledLocalDependencies\".",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "decoupledLocalDependencies": {
+        "description": "A list of local projects that appear as devDependencies for this project, but cannot be locally linked because it would create a cyclic dependency; instead, the last published version will be installed in the Common folder.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "shouldPublish": {
+        "description": "A flag indicating that changes to this project will be published to npm, which affects the Rush change and publish workflows.",
+        "type": "boolean"
+      },
+      "skipRushCheck": {
+        "description": "If true, then this project will be ignored by the \"rush check\" command.  The default value is false.",
+        "type": "boolean"
+      },
+      "versionPolicyName": {
+        "description": "An optional version policy associated with the project. Version policies are defined in \"version-policies.json\" file.",
+        "type": "string"
+      },
+      "publishFolder": {
+        "description": "Facilitates postprocessing of a project's files prior to publishing. If specified, the \"publishFolder\" is the relative path to a subfolder of the project folder. The \"rush publish\" command will publish the subfolder instead of the project folder. The subfolder must contain its own package.json file, which is typically a build output.",
+        "type": "string"
+      },
+      "tags": {
+        "description": "An optional set of custom tags that can be used to select this project. For example, adding \"my-custom-tag\" will allow this project to be selected by the command \"rush list --only tag:my-custom-tag\". The tag name must be one or more words separated by hyphens or slashes, where a word may contain lowercase ASCII letters, digits, \".\", and \"@\" characters.",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9.@]+([-/][a-z0-9.@]+)*$"
+        }
+      },
+      "subspaceName": {
+        "description": "(EXPERIMENTAL) An optional entry for specifying which subspace this project belongs to if the subspaces feature is enabled.",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["packageName", "projectFolder"]
+  }
+}

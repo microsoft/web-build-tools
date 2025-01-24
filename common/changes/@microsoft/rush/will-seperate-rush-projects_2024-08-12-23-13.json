@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Enable Rush projects to be defined in a dedicated file \"rush-projects.json\" instead of in \"rush.json\"",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}

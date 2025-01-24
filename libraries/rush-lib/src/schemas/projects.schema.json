@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Rush main project list config File",
+  "description": "The configuration file for the projects used in a Rush monorepo.",
+  "type": "object",
+
+  "properties": {
+    "$schema": {
+      "description": "Part of the JSON Schema standard, this optional keyword declares the URL of the schema that the file conforms to. Editors may download the schema and use it to perform syntax highlighting.",
+      "type": "string"
+    },
+    "projects": {
+      "description": "A list of projects managed by this tool."
+    }
+  },
+  "additionalProperties": false,
+  "required": ["projects"]
+}

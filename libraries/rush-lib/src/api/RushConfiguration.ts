@@ -39,6 +39,7 @@ import { type IPnpmOptionsJson, PnpmOptionsConfiguration } from '../logic/pnpm/P
 import { type INpmOptionsJson, NpmOptionsConfiguration } from '../logic/npm/NpmOptionsConfiguration';
 import { type IYarnOptionsJson, YarnOptionsConfiguration } from '../logic/yarn/YarnOptionsConfiguration';
 import schemaJson from '../schemas/rush.schema.json';
+import projectSchemaJson from '../schemas/projects.schema.json';
 
 import type * as DependencyAnalyzerModuleType from '../logic/DependencyAnalyzer';
 import type { PackageManagerOptionsConfigurationBase } from '../logic/base/BasePackageManagerOptionsConfiguration';
@@ -193,6 +194,14 @@ export interface ICurrentVariantJson {
 }
 
 /**
+ * This represents the JSON data structure for the "rush-projects.json" configuration file.
+ * See projects.schema.json for documentation
+ */
+export interface IRushProjectsJson {
+  projects: IRushConfigurationProjectJson[];
+}
+
+/**
  * The filter parameters to search from all projects
  */
 export interface IRushConfigurationProjectsFilter {
@@ -225,6 +234,7 @@ export interface ITryFindRushJsonLocationOptions {
  */
 export class RushConfiguration {
   private static _jsonSchema: JsonSchema = JsonSchema.fromLoadedObject(schemaJson);
+  private static _projectsJsonSchema: JsonSchema = JsonSchema.fromLoadedObject(projectSchemaJson);
 
   private readonly _pathTrees: Map<string, LookupByPath<RushConfigurationProject>>;
 
@@ -273,6 +283,13 @@ export class RushConfiguration {
    * @internal
    */
   public readonly rushConfigurationJson: IRushConfigurationJson;
+
+  /**
+   * Gets the JSON data structure for the "rush-projects.json" configuration file.
+   *
+   * @internal
+   */
+  public readonly _rushProjectsJson: IRushProjectsJson | undefined;
 
   /**
    * The absolute path to the "rush.json" configuration file that was loaded to construct this object.
@@ -919,9 +936,36 @@ export class RushConfiguration {
       throw new InternalError('The default subspace was not created');
     }
 
+    // Look for rush projects in a seperate file first, and if it does not exist fallback onto rush.json
+
+    const resolvedRushProjectsFilename: string = `${this.rushJsonFolder}/${RushConstants.rushProjectsFilename}`;
+    let rushProjects: IRushConfigurationProjectJson[] | undefined;
+    try {
+      const rushProjectsJson: IRushProjectsJson = JsonFile.load(resolvedRushProjectsFilename);
+      RushConfiguration._projectsJsonSchema.validateObject(rushProjectsJson, resolvedRushProjectsFilename);
+      rushProjects = rushProjectsJson.projects;
+    } catch (e) {
+      if (!FileSystem.isNotExistError(e)) {
+        throw e;
+      }
+    }
+    if (this.rushConfigurationJson.projects) {
+      if (rushProjects) {
+        throw new Error(
+          `When using the ${RushConstants.rushProjectsFilename} configuration file, the "projects" field of the ${RushConstants.rushJsonFilename} is no longer allowed.`
+        );
+      }
+      rushProjects = this.rushConfigurationJson.projects;
+    }
+
+    if (!rushProjects) {
+      throw new Error(
+        `The rush.json is missing a projects field, and a seperate ${RushConstants.rushProjectsFilename} file is missing. Rush projects need to be defined in one of the two places.`
+      );
+    }
     // Sort the projects array in alphabetical order.  This ensures that the packages
     // are processed in a deterministic order by the various Rush algorithms.
-    const sortedProjectJsons: IRushConfigurationProjectJson[] = this.rushConfigurationJson.projects.slice(0);
+    const sortedProjectJsons: IRushConfigurationProjectJson[] = rushProjects.slice(0);
     sortedProjectJsons.sort((a: IRushConfigurationProjectJson, b: IRushConfigurationProjectJson) =>
       a.packageName.localeCompare(b.packageName)
     );
