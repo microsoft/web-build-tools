@@ -22,7 +22,7 @@ export interface IOperationOptions {
   /**
    * The name of this operation, for logging.
    */
-  name?: string | undefined;
+  operationName: string;
 
   /**
    * The group that this operation belongs to. Will be used for logging and duration tracking.
@@ -68,7 +68,7 @@ export interface IExecuteOperationContext extends Omit<IOperationRunnerContext, 
    * A callback to the overarching orchestrator to request that the operation be invoked again.
    * Used in watch mode to signal that inputs have changed.
    */
-  requestRun?: (requestor?: string) => void;
+  requestRun?: (requestor: string) => void;
 
   /**
    * Terminal to write output to.
@@ -101,7 +101,7 @@ export class Operation implements IOperationStates {
   /**
    * The name of this operation, for logging.
    */
-  public readonly name: string | undefined;
+  public readonly operationName: string;
 
   /**
    * When the scheduler is ready to process this `Operation`, the `runner` implements the actual work of
@@ -174,11 +174,11 @@ export class Operation implements IOperationStates {
    */
   private _runPending: boolean = true;
 
-  public constructor(options?: IOperationOptions) {
+  public constructor(options: IOperationOptions) {
     this.groupName = options?.groupName;
     this.runner = options?.runner;
     this.weight = options?.weight || 1;
-    this.name = options?.name;
+    this.operationName = options.operationName;
   }
 
   public addDependency(dependency: Operation): void {
@@ -280,7 +280,9 @@ export class Operation implements IOperationStates {
                 // The requestRun callback is assumed to remain constant
                 // throughout the lifetime of the process, so it is safe
                 // to capture here.
-                return requestRun(this.name);
+                return requestRun(this.operationName);
+              case undefined:
+                throw new InternalError(`The operation state is undefined`);
               default:
                 // This line is here to enforce exhaustiveness
                 const currentStatus: undefined = this.state?.status;

@@ -54,7 +54,7 @@ export class OperationGroupRecord {
 
   public setOperationAsComplete(operation: Operation, state: IOperationState): void {
     if (!this._remainingOperations.has(operation)) {
-      throw new InternalError(`Operation ${operation.name} is not in the group ${this.name}`);
+      throw new InternalError(`Operation ${operation.operationName} is not in the group ${this.name}`);
     }
 
     if (state.status === OperationStatus.Aborted) {

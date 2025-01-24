@@ -20,7 +20,7 @@ function createGraph(
   if (weights) {
     for (const [name, weight] of weights) {
       nodes.set(name, {
-        name,
+        operationName: name,
         weight,
         consumers: new Set()
       });
@@ -31,7 +31,7 @@ function createGraph(
     let node: ITestOperation | undefined = nodes.get(name);
     if (!node) {
       node = {
-        name,
+        operationName: name,
         weight: 1,
         consumers: new Set()
       };
@@ -60,22 +60,22 @@ describe(calculateShortestPath.name, () => {
     ]);
 
     const result1: ITestOperation[] = calculateShortestPath(graph.get('a')!, graph.get('f')!);
-    expect(result1.map((x) => x.name)).toMatchSnapshot('long');
+    expect(result1.map((x) => x.operationName)).toMatchSnapshot('long');
 
     graph.get('c')!.consumers.add(graph.get('a')!);
 
     const result2: ITestOperation[] = calculateShortestPath(graph.get('a')!, graph.get('f')!);
-    expect(result2.map((x) => x.name)).toMatchSnapshot('with shortcut');
+    expect(result2.map((x) => x.operationName)).toMatchSnapshot('with shortcut');
 
     graph.get('f')!.consumers.add(graph.get('c')!);
 
     const result3: ITestOperation[] = calculateShortestPath(graph.get('a')!, graph.get('f')!);
-    expect(result3.map((x) => x.name)).toMatchSnapshot('with multiple shortcuts');
+    expect(result3.map((x) => x.operationName)).toMatchSnapshot('with multiple shortcuts');
 
     graph.get('a')!.consumers.add(graph.get('f')!);
 
     const result4: ITestOperation[] = calculateShortestPath(graph.get('a')!, graph.get('a')!);
-    expect(result4.map((x) => x.name)).toMatchSnapshot('with multiple shortcuts (circular)');
+    expect(result4.map((x) => x.operationName)).toMatchSnapshot('with multiple shortcuts (circular)');
   });
 });
 

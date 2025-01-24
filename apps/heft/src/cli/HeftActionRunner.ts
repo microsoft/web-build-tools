@@ -333,8 +333,8 @@ export class HeftActionRunner {
       executeAsync: (state: IWatchLoopState): Promise<OperationStatus> => {
         return this._executeOnceAsync(executionManager, state.abortSignal, state.requestRun);
       },
-      onRequestRun: (requestor?: string) => {
-        terminal.writeLine(Colorize.bold(`New run requested by ${requestor || 'unknown task'}`));
+      onRequestRun: (requestor: string) => {
+        terminal.writeLine(Colorize.bold(`New run requested by ${requestor}`));
       },
       onAbort: () => {
         terminal.writeLine(Colorize.bold(`Cancelling incremental build...`));
@@ -346,7 +346,7 @@ export class HeftActionRunner {
   private async _executeOnceAsync(
     executionManager: OperationExecutionManager,
     abortSignal: AbortSignal,
-    requestRun?: (requestor?: string) => void
+    requestRun?: (requestor: string) => void
   ): Promise<OperationStatus> {
     // Record this as the start of task execution.
     this._metricsCollector.setStartTime();
@@ -447,6 +447,7 @@ function _getOrCreatePhaseOperation(
     // Only create the operation. Dependencies are hooked up separately
     operation = new Operation({
       groupName: phase.phaseName,
+      operationName: `${phase.phaseName} phase`,
       runner: new PhaseOperationRunner({ phase, internalHeftSession })
     });
     operations.set(key, operation);
@@ -466,6 +467,7 @@ function _getOrCreateTaskOperation(
   if (!operation) {
     operation = new Operation({
       groupName: task.parentPhase.phaseName,
+      operationName: `${task.taskName} task`,
       runner: new TaskOperationRunner({
         internalHeftSession,
         task

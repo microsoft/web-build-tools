@@ -23,10 +23,10 @@ describe(OperationExecutionManager.name, () => {
 
     it('throws if a dependency is not in the set', () => {
       const alpha: Operation = new Operation({
-        name: 'alpha'
+        operationName: 'alpha'
       });
       const beta: Operation = new Operation({
-        name: 'beta'
+        operationName: 'beta'
       });
 
       alpha.addDependency(beta);
@@ -38,10 +38,10 @@ describe(OperationExecutionManager.name, () => {
 
     it('sets critical path lengths', () => {
       const alpha: Operation = new Operation({
-        name: 'alpha'
+        operationName: 'alpha'
       });
       const beta: Operation = new Operation({
-        name: 'beta'
+        operationName: 'beta'
       });
 
       alpha.addDependency(beta);
@@ -73,7 +73,7 @@ describe(OperationExecutionManager.name, () => {
 
       it('handles trivial input', async () => {
         const operation: Operation = new Operation({
-          name: 'alpha'
+          operationName: 'alpha'
         });
         const manager: OperationExecutionManager = new OperationExecutionManager(new Set([operation]));
 
@@ -97,17 +97,17 @@ describe(OperationExecutionManager.name, () => {
         const runBeta: ExecuteAsyncMock = jest.fn();
 
         const alpha: Operation = new Operation({
-          name: 'alpha',
+          operationName: 'alpha',
           runner: {
-            name: 'alpha',
+            operationName: 'alpha',
             executeAsync: runAlpha,
             silent: false
           }
         });
         const beta: Operation = new Operation({
-          name: 'beta',
+          operationName: 'beta',
           runner: {
-            name: 'beta',
+            operationName: 'beta',
             executeAsync: runBeta,
             silent: false
           }
@@ -149,17 +149,17 @@ describe(OperationExecutionManager.name, () => {
         const runBeta: ExecuteAsyncMock = jest.fn();
 
         const alpha: Operation = new Operation({
-          name: 'alpha',
+          operationName: 'alpha',
           runner: {
-            name: 'alpha',
+            operationName: 'alpha',
             executeAsync: runAlpha,
             silent: false
           }
         });
         const beta: Operation = new Operation({
-          name: 'beta',
+          operationName: 'beta',
           runner: {
-            name: 'beta',
+            operationName: 'beta',
             executeAsync: runBeta,
             silent: false
           }
@@ -197,9 +197,9 @@ describe(OperationExecutionManager.name, () => {
 
       it('does not track noops', async () => {
         const operation: Operation = new Operation({
-          name: 'alpha',
+          operationName: 'alpha',
           runner: {
-            name: 'alpha',
+            operationName: 'alpha',
             executeAsync(): Promise<OperationStatus> {
               return Promise.resolve(OperationStatus.NoOp);
             },
@@ -226,17 +226,17 @@ describe(OperationExecutionManager.name, () => {
         const runBeta: ExecuteAsyncMock = jest.fn();
 
         const alpha: Operation = new Operation({
-          name: 'alpha',
+          operationName: 'alpha',
           runner: {
-            name: 'alpha',
+            operationName: 'alpha',
             executeAsync: runAlpha,
             silent: false
           }
         });
         const beta: Operation = new Operation({
-          name: 'beta',
+          operationName: 'beta',
           runner: {
-            name: 'beta',
+            operationName: 'beta',
             executeAsync: runBeta,
             silent: false
           }
@@ -297,17 +297,17 @@ describe(OperationExecutionManager.name, () => {
         );
 
         const alpha: Operation = new Operation({
-          name: 'alpha',
+          operationName: 'alpha',
           runner: {
-            name: 'alpha',
+            operationName: 'alpha',
             executeAsync: run,
             silent: false
           }
         });
         const beta: Operation = new Operation({
-          name: 'beta',
+          operationName: 'beta',
           runner: {
-            name: 'beta',
+            operationName: 'beta',
             executeAsync: run,
             silent: false
           }
@@ -343,17 +343,17 @@ describe(OperationExecutionManager.name, () => {
         const requestRun: jest.Mock = jest.fn();
 
         const alpha: Operation = new Operation({
-          name: 'alpha',
+          operationName: 'alpha',
           runner: {
-            name: 'alpha',
+            operationName: 'alpha',
             executeAsync: runAlpha,
             silent: false
           }
         });
         const beta: Operation = new Operation({
-          name: 'beta',
+          operationName: 'beta',
           runner: {
-            name: 'beta',
+            operationName: 'beta',
             executeAsync: runBeta,
             silent: false
           }
@@ -402,7 +402,7 @@ describe(OperationExecutionManager.name, () => {
         betaRequestRun!();
 
         expect(requestRun).toHaveBeenCalledTimes(1);
-        expect(requestRun).toHaveBeenLastCalledWith(beta.name);
+        expect(requestRun).toHaveBeenLastCalledWith(beta.operationName);
 
         const terminalProvider2: StringBufferTerminalProvider = new StringBufferTerminalProvider(false);
         const terminal2: ITerminal = new Terminal(terminalProvider2);

@@ -33,7 +33,7 @@ export interface IExecuteOperationContext extends Omit<IOperationRunnerContext, 
     afterExecute(operation: Operation, state: IOperationState): void;
     beforeExecute(operation: Operation, state: IOperationState): void;
     queueWork(workFn: () => Promise<OperationStatus>, priority: number): Promise<OperationStatus>;
-    requestRun?: (requestor?: string) => void;
+    requestRun?: (requestor: string) => void;
     terminal: ITerminal;
 }
 
@@ -50,7 +50,7 @@ export interface IOperationExecutionOptions {
     // (undocumented)
     parallelism: number;
     // (undocumented)
-    requestRun?: (requestor?: string) => void;
+    requestRun?: (requestor: string) => void;
     // (undocumented)
     terminal: ITerminal;
 }
@@ -58,7 +58,7 @@ export interface IOperationExecutionOptions {
 // @beta
 export interface IOperationOptions {
     groupName?: string | undefined;
-    name?: string | undefined;
+    operationName: string;
     runner?: IOperationRunner | undefined;
     weight?: number | undefined;
 }
@@ -66,7 +66,7 @@ export interface IOperationOptions {
 // @beta
 export interface IOperationRunner {
     executeAsync(context: IOperationRunnerContext): Promise<OperationStatus>;
-    readonly name: string;
+    readonly operationName: string;
     silent: boolean;
 }
 
@@ -99,7 +99,7 @@ export interface IRequestRunEventMessage {
     // (undocumented)
     event: 'requestRun';
     // (undocumented)
-    requestor?: string;
+    requestor: string;
 }
 
 // @beta
@@ -127,7 +127,7 @@ export interface IWatchLoopOptions {
     executeAsync: (state: IWatchLoopState) => Promise<OperationStatus>;
     onAbort: () => void;
     onBeforeExecute: () => void;
-    onRequestRun: (requestor?: string) => void;
+    onRequestRun: (requestor: string) => void;
 }
 
 // @beta
@@ -135,12 +135,12 @@ export interface IWatchLoopState {
     // (undocumented)
     get abortSignal(): AbortSignal;
     // (undocumented)
-    requestRun: (requestor?: string) => void;
+    requestRun: (requestor: string) => void;
 }
 
 // @beta
 export class Operation implements IOperationStates {
-    constructor(options?: IOperationOptions);
+    constructor(options: IOperationOptions);
     // (undocumented)
     addDependency(dependency: Operation): void;
     readonly consumers: Set<Operation>;
@@ -152,7 +152,7 @@ export class Operation implements IOperationStates {
     _executeAsync(context: IExecuteOperationContext): Promise<OperationStatus>;
     readonly groupName: string | undefined;
     lastState: IOperationState | undefined;
-    readonly name: string | undefined;
+    readonly operationName: string;
     // (undocumented)
     reset(): void;
     runner: IOperationRunner | undefined;
@@ -231,7 +231,7 @@ export class Stopwatch {
 export class WatchLoop implements IWatchLoopState {
     constructor(options: IWatchLoopOptions);
     get abortSignal(): AbortSignal;
-    requestRun: (requestor?: string) => void;
+    requestRun: (requestor: string) => void;
     runIPCAsync(host?: IPCHost): Promise<void>;
     runUntilAbortedAsync(abortSignal: AbortSignal, onWaiting: () => void): Promise<void>;
     runUntilStableAsync(abortSignal: AbortSignal): Promise<OperationStatus>;

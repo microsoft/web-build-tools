@@ -31,7 +31,7 @@ export interface IWatchLoopOptions {
   /**
    * Logging callback when a run is requested (and hasn't already been).
    */
-  onRequestRun: (requestor?: string) => void;
+  onRequestRun: (requestor: string) => void;
   /**
    * Logging callback when a run is aborted.
    */
@@ -45,7 +45,7 @@ export interface IWatchLoopOptions {
  */
 export interface IWatchLoopState {
   get abortSignal(): AbortSignal;
-  requestRun: (requestor?: string) => void;
+  requestRun: (requestor: string) => void;
 }
 
 /**
@@ -60,7 +60,7 @@ export class WatchLoop implements IWatchLoopState {
   private _isRunning: boolean;
   private _runRequested: boolean;
   private _requestRunPromise: Promise<string | undefined>;
-  private _resolveRequestRun!: (requestor?: string) => void;
+  private _resolveRequestRun!: (requestor: string) => void;
 
   public constructor(options: IWatchLoopOptions) {
     this._options = options;
@@ -147,7 +147,7 @@ export class WatchLoop implements IWatchLoopState {
         }
       }
 
-      function requestRunFromHost(requestor?: string): void {
+      function requestRunFromHost(requestor: string): void {
         if (runRequestedFromHost) {
           return;
         }
@@ -192,9 +192,12 @@ export class WatchLoop implements IWatchLoopState {
 
             try {
               status = await this.runUntilStableAsync(abortController.signal);
-              // ESLINT: "Promises must be awaited, end with a call to .catch, end with a call to .then ..."
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this._requestRunPromise.finally(requestRunFromHost);
+              this._requestRunPromise
+                // the reject callback in the promise is discarded so we ignore errors
+                .catch(() => {})
+                .finally(() => {
+                  requestRunFromHost('runIPCAsync');
+                });
             } catch (err) {
               status = OperationStatus.Failure;
               return reject(err);
@@ -225,7 +228,7 @@ export class WatchLoop implements IWatchLoopState {
   /**
    * Requests that a new run occur.
    */
-  public requestRun: (requestor?: string) => void = (requestor?: string) => {
+  public requestRun: (requestor: string) => void = (requestor: string) => {
     if (!this._runRequested) {
       this._options.onRequestRun(requestor);
       this._runRequested = true;

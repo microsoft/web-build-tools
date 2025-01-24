@@ -10,7 +10,7 @@ import type { OperationStatus } from './OperationStatus';
  */
 export interface IRequestRunEventMessage {
   event: 'requestRun';
-  requestor?: string;
+  requestor: string;
 }
 
 /**

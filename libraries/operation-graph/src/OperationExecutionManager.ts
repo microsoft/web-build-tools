@@ -21,7 +21,7 @@ export interface IOperationExecutionOptions {
   parallelism: number;
   terminal: ITerminal;
 
-  requestRun?: (requestor?: string) => void;
+  requestRun?: (requestor: string) => void;
 }
 
 /**
@@ -77,8 +77,8 @@ export class OperationExecutionManager {
       for (const dependency of consumer.dependencies) {
         if (!operations.has(dependency)) {
           throw new Error(
-            `Operation ${JSON.stringify(consumer.name)} declares a dependency on operation ` +
-              `${JSON.stringify(dependency.name)} that is not in the set of operations to execute.`
+            `Operation ${JSON.stringify(consumer.operationName)} declares a dependency on operation ` +
+              `${JSON.stringify(dependency.operationName)} that is not in the set of operations to execute.`
           );
         }
       }

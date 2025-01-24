@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/operation-graph",
+      "comment": "(BREAKING API CHANGE) Require an operationName for every operation to improve logging.",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@rushstack/operation-graph"
+}

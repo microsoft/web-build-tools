@@ -2,7 +2,7 @@
 // See LICENSE in the project root for license information.
 
 export interface ISortableOperation<T extends ISortableOperation<T>> {
-  name: string | undefined;
+  operationName: string | undefined;
   criticalPathLength?: number | undefined;
   weight: number;
   consumers: Set<T>;
@@ -54,7 +54,9 @@ export function calculateShortestPath<T extends ISortableOperation<T>>(
   }
 
   if (!finalParent) {
-    throw new Error(`Could not find a path from "${startOperation.name}" to "${endOperation.name}"`);
+    throw new Error(
+      `Could not find a path from "${startOperation.operationName}" to "${endOperation.operationName}"`
+    );
   }
 
   // Walk back up the path from the end operation to the start operation
@@ -81,7 +83,7 @@ export function calculateCriticalPathLength<T extends ISortableOperation<T>>(
 
     throw new Error(
       'A cyclic dependency was encountered:\n  ' +
-        shortestPath.map((visitedTask) => visitedTask.name).join('\n  -> ')
+        shortestPath.map((visitedTask) => visitedTask.operationName).join('\n  -> ')
     );
   }
 

@@ -81,7 +81,7 @@ export interface IOperationRunner {
   /**
    * Name of the operation, for logging.
    */
-  readonly name: string;
+  readonly operationName: string;
 
   /**
    * Indicates that this runner is architectural and should not be reported on.

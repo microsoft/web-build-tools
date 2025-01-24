@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@rushstack/heft",
+      "comment": "Require a logging name for every operation.",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@rushstack/heft"
+}

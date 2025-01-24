@@ -63,7 +63,7 @@ export class TaskOperationRunner implements IOperationRunner {
 
   public readonly silent: boolean = false;
 
-  public get name(): string {
+  public get operationName(): string {
     const { taskName, parentPhase } = this._options.task;
     return `Task ${JSON.stringify(taskName)} of phase ${JSON.stringify(parentPhase.phaseName)}`;
   }

@@ -23,7 +23,7 @@ export class PhaseOperationRunner implements IOperationRunner {
   private readonly _options: IPhaseOperationRunnerOptions;
   private _isClean: boolean = false;
 
-  public get name(): string {
+  public get operationName(): string {
     return `Phase ${JSON.stringify(this._options.phase.phaseName)}`;
   }
 
