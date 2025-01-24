@@ -27,6 +27,10 @@
                 "description": "Project name.",
                 "type": "string"
               },
+              "exemptProjectList": {
+                "description": "Projects that you would like to exempt.",
+                "type": "string"
+              },
               "requiredVersions": {
                 "description": "List of restrict dependency version.",
                 "type": "object",

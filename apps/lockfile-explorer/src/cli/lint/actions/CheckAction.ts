@@ -23,6 +23,7 @@ export interface ILintRule {
   rule: 'restrict-versions';
   project: string;
   requiredVersions: Record<string, string>;
+  exemptProjectList?: string[];
 }
 
 export interface ILockfileLint {
@@ -96,7 +97,8 @@ export class CheckAction extends CommandLineAction {
 
   private async _searchAndValidateDependenciesAsync(
     project: RushConfigurationProject,
-    requiredVersions: Record<string, string>
+    requiredVersions: Record<string, string>,
+    exemptProjectList: string[]
   ): Promise<void> {
     this._terminal.writeLine(`Checking project "${project.packageName}"`);
 
@@ -116,9 +118,9 @@ export class CheckAction extends CommandLineAction {
     const checkedDependencyPaths: Set<string> = new Set<string>();
 
     await Promise.all(
-      Object.entries(importers).map(async ([relativePath, { dependencies }]) => {
+      Object.entries(importers).map(async ([relativePath, { dependencies, devDependencies }]) => {
         if (path.resolve(projectFolder, relativePath) === projectFolder) {
-          const dependenciesEntries = Object.entries(dependencies ?? {});
+          const dependenciesEntries = Object.entries({ ...dependencies, ...devDependencies } ?? {});
           for (const [dependencyName, dependencyValue] of dependenciesEntries) {
             const fullDependencyPath = splicePackageWithVersion(
               shrinkwrapFileMajorVersion,
@@ -135,9 +137,17 @@ export class CheckAction extends CommandLineAction {
             if (fullDependencyPath.includes('link:')) {
               const dependencyProject: RushConfigurationProject | undefined =
                 this._rushConfiguration.getProjectByName(dependencyName);
-              if (dependencyProject && !this._checkedProjects?.has(dependencyProject)) {
+              if (
+                dependencyProject &&
+                !this._checkedProjects?.has(dependencyProject) &&
+                !exemptProjectList.includes(dependencyName)
+              ) {
                 this._checkedProjects!.add(project);
-                await this._searchAndValidateDependenciesAsync(dependencyProject, requiredVersions);
+                await this._searchAndValidateDependenciesAsync(
+                  dependencyProject,
+                  requiredVersions,
+                  exemptProjectList
+                );
               }
             } else {
               await this._checkVersionCompatibilityAsync(
@@ -156,7 +166,8 @@ export class CheckAction extends CommandLineAction {
 
   private async _performVersionRestrictionCheckAsync(
     requiredVersions: Record<string, string>,
-    projectName: string
+    projectName: string,
+    exemptProjectList: string[]
   ): Promise<string | undefined> {
     try {
       const project: RushConfigurationProject | undefined =
@@ -167,7 +178,7 @@ export class CheckAction extends CommandLineAction {
         );
       }
       this._checkedProjects.add(project);
-      await this._searchAndValidateDependenciesAsync(project, requiredVersions);
+      await this._searchAndValidateDependenciesAsync(project, requiredVersions, exemptProjectList);
       return undefined;
     } catch (e) {
       return e.message;
@@ -196,12 +207,13 @@ export class CheckAction extends CommandLineAction {
     const issues: ILintIssue[] = [];
     await Async.forEachAsync(
       rules,
-      async ({ requiredVersions, project, rule }) => {
+      async ({ requiredVersions, project, rule, exemptProjectList }) => {
         switch (rule) {
           case 'restrict-versions': {
             const message: string | undefined = await this._performVersionRestrictionCheckAsync(
               requiredVersions,
-              project
+              project,
+              exemptProjectList ?? []
             );
             if (message) {
               issues.push({ project, rule, message });
