@@ -19,4 +19,7 @@ export class Lib2Class {
 export interface Lib2Interface {
 }
 
+// Warning: (ae-internal-missing-underscore) The name "performance" should be prefixed with an underscore because the declaration is marked as @internal
+export { performance_2 as performance }
+
 ```

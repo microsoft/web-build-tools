@@ -19,4 +19,8 @@ export class Lib2Class {
 export interface Lib2Interface {
 }
 
+// @internal
+const performance_2: Performance;
+export { performance_2 as performance }
+
 ```
