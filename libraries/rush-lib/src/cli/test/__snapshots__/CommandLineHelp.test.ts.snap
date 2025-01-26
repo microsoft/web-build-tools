@@ -154,8 +154,9 @@ exports[`CommandLineHelp prints the help for each action: build 1`] = `
                   [-t PROJECT] [-T PROJECT] [-f PROJECT] [-o PROJECT]
                   [-i PROJECT] [-I PROJECT]
                   [--to-version-policy VERSION_POLICY_NAME]
-                  [--from-version-policy VERSION_POLICY_NAME] [-v] [-c]
-                  [--ignore-hooks] [-s] [-m]
+                  [--from-version-policy VERSION_POLICY_NAME]
+                  [--print-log-file-paths] [-v] [-c] [--ignore-hooks] [-s]
+                  [-m]
                   
 
 This command is similar to \\"rush rebuild\\", except that \\"rush build\\" performs 
@@ -267,6 +268,9 @@ Optional arguments:
                         each of the projects belonging to VERSION_POLICY_NAME.
                          For details, refer to the website article \\"Selecting 
                         subsets of projects\\".
+  --print-log-file-paths
+                        Display log file paths for projects that failed to 
+                        build
   -v, --verbose         Display the logs during the build, rather than just 
                         displaying the build status summary
   -c, --changed-projects-only
@@ -431,8 +435,8 @@ exports[`CommandLineHelp prints the help for each action: import-strings 1`] = `
                            [-t PROJECT] [-T PROJECT] [-f PROJECT] [-o PROJECT]
                            [-i PROJECT] [-I PROJECT]
                            [--to-version-policy VERSION_POLICY_NAME]
-                           [--from-version-policy VERSION_POLICY_NAME] [-v]
-                           [--ignore-hooks]
+                           [--from-version-policy VERSION_POLICY_NAME]
+                           [--print-log-file-paths] [-v] [--ignore-hooks]
                            [--locale {en-us,fr-fr,es-es,zh-cn}]
                            
 
@@ -536,6 +540,9 @@ Optional arguments:
                         each of the projects belonging to VERSION_POLICY_NAME.
                          For details, refer to the website article \\"Selecting 
                         subsets of projects\\".
+  --print-log-file-paths
+                        Display log file paths for projects that failed to 
+                        build
   -v, --verbose         Display the logs during the build, rather than just 
                         displaying the build status summary
   --ignore-hooks        Skips execution of the \\"eventHooks\\" scripts defined 
@@ -1029,8 +1036,8 @@ exports[`CommandLineHelp prints the help for each action: rebuild 1`] = `
                     [-t PROJECT] [-T PROJECT] [-f PROJECT] [-o PROJECT]
                     [-i PROJECT] [-I PROJECT]
                     [--to-version-policy VERSION_POLICY_NAME]
-                    [--from-version-policy VERSION_POLICY_NAME] [-v]
-                    [--ignore-hooks] [-s] [-m]
+                    [--from-version-policy VERSION_POLICY_NAME]
+                    [--print-log-file-paths] [-v] [--ignore-hooks] [-s] [-m]
                     
 
 This command assumes that the package.json file for each project contains a 
@@ -1139,6 +1146,9 @@ Optional arguments:
                         each of the projects belonging to VERSION_POLICY_NAME.
                          For details, refer to the website article \\"Selecting 
                         subsets of projects\\".
+  --print-log-file-paths
+                        Display log file paths for projects that failed to 
+                        build
   -v, --verbose         Display the logs during the build, rather than just 
                         displaying the build status summary
   --ignore-hooks        Skips execution of the \\"eventHooks\\" scripts defined 

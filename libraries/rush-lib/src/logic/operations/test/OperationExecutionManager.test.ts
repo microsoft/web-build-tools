@@ -88,7 +88,7 @@ describe(OperationExecutionManager.name, () => {
       );
 
       const result: IExecutionResult = await executionManager.executeAsync();
-      _printOperationStatus(mockTerminal, result);
+      _printOperationStatus(mockTerminal, false, result);
       expect(result.status).toEqual(OperationStatus.Failure);
       expect(result.operationResults.size).toEqual(1);
       const firstResult: IOperationExecutionResult = result.operationResults.values().next().value;
@@ -110,7 +110,7 @@ describe(OperationExecutionManager.name, () => {
       );
 
       const result: IExecutionResult = await executionManager.executeAsync();
-      _printOperationStatus(mockTerminal, result);
+      _printOperationStatus(mockTerminal, false, result);
       expect(result.status).toEqual(OperationStatus.Failure);
       expect(result.operationResults.size).toEqual(1);
       const firstResult: IOperationExecutionResult = result.operationResults.values().next().value;
@@ -184,7 +184,7 @@ describe(OperationExecutionManager.name, () => {
         );
 
         const result: IExecutionResult = await executionManager.executeAsync();
-        _printOperationStatus(mockTerminal, result);
+        _printOperationStatus(mockTerminal, false, result);
         expect(result.status).toEqual(OperationStatus.SuccessWithWarning);
         expect(result.operationResults.size).toEqual(1);
         const firstResult: IOperationExecutionResult = result.operationResults.values().next().value;
@@ -223,7 +223,7 @@ describe(OperationExecutionManager.name, () => {
         );
 
         const result: IExecutionResult = await executionManager.executeAsync();
-        _printOperationStatus(mockTerminal, result);
+        _printOperationStatus(mockTerminal, false, result);
         expect(result.status).toEqual(OperationStatus.Success);
         expect(result.operationResults.size).toEqual(1);
         const firstResult: IOperationExecutionResult = result.operationResults.values().next().value;
@@ -250,7 +250,7 @@ describe(OperationExecutionManager.name, () => {
 
         const result: IExecutionResult = await executionManager.executeAsync();
         _printTimeline({ terminal: mockTerminal, result, cobuildConfiguration: undefined });
-        _printOperationStatus(mockTerminal, result);
+        _printOperationStatus(mockTerminal, false, result);
         const allMessages: string = mockWritable.getAllOutput();
         expect(allMessages).toContain('Build step 1');
         expect(allMessages).toContain('Warning: step 1 succeeded with warnings');

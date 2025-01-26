@@ -144,6 +144,7 @@ export class PhasedScriptAction extends BaseScriptAction<IPhasedCommandConfig> {
 
   private readonly _changedProjectsOnly: CommandLineFlagParameter | undefined;
   private readonly _selectionParameters: SelectionParameterSet;
+  private readonly _printLogFilePathsParameter: CommandLineFlagParameter;
   private readonly _verboseParameter: CommandLineFlagParameter;
   private readonly _parallelismParameter: CommandLineStringParameter | undefined;
   private readonly _ignoreHooksParameter: CommandLineFlagParameter;
@@ -218,6 +219,11 @@ export class PhasedScriptAction extends BaseScriptAction<IPhasedCommandConfig> {
         enableFiltering: true
       },
       includeSubspaceSelector: false
+    });
+
+    this._printLogFilePathsParameter = this.defineFlagParameter({
+      parameterLongName: '--print-log-file-paths',
+      description: 'Display log file paths for projects that failed to build'
     });
 
     this._verboseParameter = this.defineFlagParameter({
@@ -367,7 +373,7 @@ export class PhasedScriptAction extends BaseScriptAction<IPhasedCommandConfig> {
     }
 
     // Enable the standard summary
-    new OperationResultSummarizerPlugin(terminal).apply(this.hooks);
+    new OperationResultSummarizerPlugin(terminal, this._printLogFilePathsParameter.value).apply(this.hooks);
 
     const { hooks: sessionHooks } = this.rushSession;
     if (sessionHooks.runAnyPhasedCommand.isUsed()) {

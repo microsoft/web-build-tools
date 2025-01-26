@@ -28,16 +28,18 @@ type IOperationsByStatus = Map<OperationStatus, IOperationAndResult[]>;
  */
 export class OperationResultSummarizerPlugin implements IPhasedCommandPlugin {
   private readonly _terminal: ITerminal;
+  private readonly _shouldPrintLogFilePaths: boolean;
 
-  public constructor(terminal: ITerminal) {
+  public constructor(terminal: ITerminal, shouldPrintLogFilePaths: boolean) {
     this._terminal = terminal;
+    this._shouldPrintLogFilePaths = shouldPrintLogFilePaths;
   }
 
   public apply(hooks: PhasedCommandHooks): void {
     hooks.afterExecuteOperations.tap(
       PLUGIN_NAME,
       (result: IExecutionResult, context: ICreateOperationsContext): void => {
-        _printOperationStatus(this._terminal, result);
+        _printOperationStatus(this._terminal, this._shouldPrintLogFilePaths, result);
       }
     );
   }
@@ -47,7 +49,7 @@ export class OperationResultSummarizerPlugin implements IPhasedCommandPlugin {
  * Prints out a report of the status of each project
  * @internal
  */
-export function _printOperationStatus(terminal: ITerminal, result: IExecutionResult): void {
+export function _printOperationStatus(terminal: ITerminal, shouldPrintLogFilePaths: boolean, result: IExecutionResult): void {
   const { operationResults } = result;
 
   const operationsByStatus: IOperationsByStatus = new Map();
@@ -119,6 +121,7 @@ export function _printOperationStatus(terminal: ITerminal, result: IExecutionRes
 
   writeDetailedSummary(
     terminal,
+    shouldPrintLogFilePaths,
     OperationStatus.SuccessWithWarning,
     operationsByStatus,
     Colorize.yellow,
@@ -133,7 +136,7 @@ export function _printOperationStatus(terminal: ITerminal, result: IExecutionRes
     'These operations were blocked by dependencies that failed:'
   );
 
-  writeDetailedSummary(terminal, OperationStatus.Failure, operationsByStatus, Colorize.red);
+  writeDetailedSummary(terminal, shouldPrintLogFilePaths, OperationStatus.Failure, operationsByStatus, Colorize.red);
 
   terminal.writeLine('');
 
@@ -196,6 +199,7 @@ function writeCondensedSummary(
 
 function writeDetailedSummary(
   terminal: ITerminal,
+  shouldPrintLogFilePaths: boolean,
   status: OperationStatus,
   operationsByStatus: IOperationsByStatus,
   headingColor: (text: string) => string,
@@ -251,6 +255,13 @@ function writeDetailedSummary(
     if (details) {
       // Don't write a newline, because the report will always end with a newline
       terminal.write(details);
+    }
+
+    if (shouldPrintLogFilePaths) {
+      if (operationResult.status === OperationStatus.Failure && operationResult.logFilePaths !== undefined) {
+        terminal.writeLine('');
+        terminal.writeLine(Colorize.gray(`log file: ${operationResult.logFilePaths.text}`));
+      }
     }
 
     terminal.writeLine('');

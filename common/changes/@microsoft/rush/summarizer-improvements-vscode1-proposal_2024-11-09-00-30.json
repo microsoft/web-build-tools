@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@microsoft/rush",
+      "comment": "Add new --print-log-file-paths parameter for rush commands that prints log file paths after failed action summaries",
+      "type": "none"
+    }
+  ],
+  "packageName": "@microsoft/rush"
+}
