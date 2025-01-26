@@ -558,34 +558,57 @@ export class ApiReportGenerator {
     if (!collector.isAncillaryDeclaration(astDeclaration)) {
       const footerParts: string[] = [];
       const apiItemMetadata: ApiItemMetadata = collector.fetchApiItemMetadata(astDeclaration);
+
+      // 1. Release tag (if present)
       if (!apiItemMetadata.releaseTagSameAsParent) {
         if (apiItemMetadata.effectiveReleaseTag !== ReleaseTag.None) {
           footerParts.push(ReleaseTag.getTagName(apiItemMetadata.effectiveReleaseTag));
         }
       }
 
-      if (apiItemMetadata.isSealed) {
+      // 2. Enumerate configured tags, reporting standard system tags first and then other configured tags.
+      // Note that the ordering we handle the standard tags is important for backwards compatibility.
+      // Also note that we had special mechanisms for checking whether or not an item is documented with these tags,
+      // so they are checked specially.
+      const {
+        '@sealed': reportSealedTag,
+        '@virtual': reportVirtualTag,
+        '@override': reportOverrideTag,
+        '@eventProperty': reportEventPropertyTag,
+        '@deprecated': reportDeprecatedTag,
+        ...otherTagsToReport
+      } = collector.extractorConfig.tagsToReport;
+
+      // 2.a Check for standard tags and report those that are both configured and present in the metadata.
+      if (reportSealedTag && apiItemMetadata.isSealed) {
         footerParts.push('@sealed');
       }
-
-      if (apiItemMetadata.isVirtual) {
+      if (reportVirtualTag && apiItemMetadata.isVirtual) {
         footerParts.push('@virtual');
       }
-
-      if (apiItemMetadata.isOverride) {
+      if (reportOverrideTag && apiItemMetadata.isOverride) {
         footerParts.push('@override');
       }
-
-      if (apiItemMetadata.isEventProperty) {
+      if (reportEventPropertyTag && apiItemMetadata.isEventProperty) {
         footerParts.push('@eventProperty');
       }
+      if (reportDeprecatedTag && apiItemMetadata.tsdocComment?.deprecatedBlock) {
+        footerParts.push('@deprecated');
+      }
 
-      if (apiItemMetadata.tsdocComment) {
-        if (apiItemMetadata.tsdocComment.deprecatedBlock) {
-          footerParts.push('@deprecated');
+      // 2.b Check for other configured tags and report those that are present in the tsdoc metadata.
+      for (const [tag, reportTag] of Object.entries(otherTagsToReport)) {
+        if (reportTag) {
+          // If the tag was not handled specially, check if it is present in the metadata.
+          if (apiItemMetadata.tsdocComment?.customBlocks.some((block) => block.blockTag.tagName === tag)) {
+            footerParts.push(tag);
+          } else if (apiItemMetadata.tsdocComment?.modifierTagSet.hasTagName(tag)) {
+            footerParts.push(tag);
+          }
         }
       }
 
+      // 3. If the item is undocumented, append notice at the end of the list
       if (apiItemMetadata.undocumented) {
         footerParts.push('(undocumented)');
 

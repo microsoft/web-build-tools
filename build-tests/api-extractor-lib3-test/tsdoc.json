@@ -1,0 +1,20 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+
+  "extends": ["@microsoft/api-extractor/extends/tsdoc-base.json"],
+
+  "tagDefinitions": [
+    {
+      "tagName": "@customModifierTag",
+      "syntaxKind": "modifier"
+    },
+    {
+      "tagName": "@customBlockTag",
+      "syntaxKind": "modifier"
+    }
+  ],
+  "supportForTags": {
+    "@customModifierTag": true,
+    "@customBlockTag": true
+  }
+}

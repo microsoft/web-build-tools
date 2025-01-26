@@ -30,7 +30,6 @@
 
   "dtsRollup": {
     // ("enabled" is required)
-
     "untrimmedFilePath": "<projectFolder>/dist/<unscopedPackageName>.d.ts",
     "alphaTrimmedFilePath": "",
     "betaTrimmedFilePath": "",

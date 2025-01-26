@@ -1,10 +1,17 @@
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "$schema": "../../../apps/api-extractor/src/schemas/api-extractor.schema.json",
 
   "mainEntryPointFilePath": "<projectFolder>/lib/index.d.ts",
 
   "apiReport": {
-    "enabled": true
+    "enabled": true,
+    "tagsToReport": {
+      // Disable reporting of `@virtual`, which is reported by default
+      "@virtual": false,
+      // Enable reporting of our custom TSDoc tags.
+      "@customBlockTag": true,
+      "@customModifierTag": true
+    }
   },
 
   "docModel": {

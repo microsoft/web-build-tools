@@ -106,6 +106,17 @@
         "includeForgottenExports": {
           "description": "Whether \"forgotten exports\" should be included in the API report file. Forgotten exports are declarations flagged with `ae-forgotten-export` warnings. See https://api-extractor.com/pages/messages/ae-forgotten-export/ to learn more.",
           "type": "boolean"
+        },
+
+        "tagsToReport": {
+          "description": "Specifies a list of TSDoc tags that should be reported in the API report file for items whose documentation contains them.  This can be used to include standard TSDoc tags or custom ones.  Specified tag names must begin with \"@\".  By default, the following tags are reported: [@sealed, @virtual, @override, @eventProperty, @deprecated].  Tags will appear in the order they are specified in this list.  Note that an item's release tag will always reported; this behavior cannot be overridden.",
+          "type": "object",
+          "patternProperties": {
+            "^@[^\\s]*$": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "required": ["enabled"],

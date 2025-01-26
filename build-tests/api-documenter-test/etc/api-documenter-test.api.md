@@ -184,7 +184,7 @@ export namespace OuterNamespace {
     let nestedVariable: boolean;
 }
 
-// @public
+// @public @myCustomTag
 export class SystemEvent {
     addHandler(handler: () => void): void;
 }
